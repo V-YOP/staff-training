@@ -1,4 +1,4 @@
-import React, { FC, ForwardedRef, useMemo } from "react";
+import React, { FC, ForwardedRef, StyleHTMLAttributes, useMemo } from "react";
 
 /**
  * 
@@ -12,25 +12,31 @@ function getGUID(): string {
   return _p8() + _p8(true) + _p8(true) + _p8();
 }
 
+type Note = string
 
 export interface StaveParam {
   width: number
   height: number
+  clef: 'treble' | 'bass'
+  style?: React.CSSProperties
+  notes: Note[][]
   // TODO
 }
 
 export interface StaveOpt {
   // TODO
 }
+
 /**
  * Vexflow Renderer Wrapper
  */
-export const Stave = React.forwardRef<StaveOpt, StaveParam>((param,ref) => {
+export const Stave : React.ForwardRefExoticComponent<StaveParam & React.RefAttributes<StaveOpt>> 
+  = React.forwardRef<StaveOpt, StaveParam>((param, ref) => {
   // TODO
-  const divId = useMemo(getGUID, [])
+  const randomId = useMemo(getGUID, [])
   return (
     <>
-
+      <div style={param.style} id={randomId}></div>
     </>
   )
 })
