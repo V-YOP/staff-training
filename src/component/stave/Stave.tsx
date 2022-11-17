@@ -4,7 +4,7 @@ import * as V from 'vexflow';
 import * as T from '@tonaljs/tonal';
 import * as Tc from '@tonaljs/core';
 import * as R from 'ramda'
-import { _ } from "ajv";
+
 /**
  * 
  * @returns random GUID
@@ -69,11 +69,11 @@ export const Stave : React.ForwardRefExoticComponent<StaveParam & React.RefAttri
   = React.forwardRef<StaveOpt, StaveParam>(({
     clef = 'treble',
     keySignature = 'C',
-    width = 400,
-    height = 200,
+    width = 300,
+    height = 180,
     staffXOffset = 0,
     staffYOffset = 30,
-    staffWidth = 400,
+    staffWidth = 300,
     notes = [],
     style
   }, ref) => {
