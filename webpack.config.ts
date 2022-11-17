@@ -4,7 +4,7 @@ import 'webpack-dev-server';
 import HtmlWebpackPlugin from 'html-webpack-plugin'
 import MiniCssExtractPlugin from  "mini-css-extract-plugin"
 
-const isProduction = process.argv[process.argv.indexOf('--mode') + 1] === 'production';
+const isProduction = process.env.NODE_ENV === 'production';
 
 // Configuration是Webpack的配置项类型
 const conf: Configuration = {

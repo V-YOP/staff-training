@@ -2,43 +2,52 @@ import { SingleAnswerGroup, Answer } from "@/component/answer";
 import { Stat } from "@/component/stat";
 import { Stave } from "@/component/stave/Stave";
 import { useLocalStorage } from "@/custom/useLocalStorage";
-import { randomNoteList, shuffle } from "@/RandomUtil";
+import { randomItem } from "@/util/CollectionUtil";
+import { NoteRandom } from "@/util/NoteRandom";
 import { NoteLiteral } from "@tonaljs/tonal";
 import R from "ramda";
 import { FC, useCallback, useMemo, useReducer, useState } from "react";
 
 type NoteRecognizeContainerSetting = {
-  startNote: NoteLiteral,
-  endNote: NoteLiteral,
+  startNote: string,
+  endNote: string,
   accidental: 'all' | 'natural' | 'sharp' | 'flat'
 }
 
 
 export const NoteRecognizeContainer: FC<{}> = param => {
-  const [{startNote, endNote, accidental}, setConfig] = useLocalStorage<NoteRecognizeContainerSetting>('NOTE_RECOGNIZE_CONFIG', {
-    startNote: 'C4', endNote: 'C6', accidental: 'all'
+  const [{startNote, endNote, accidental}, ] = useLocalStorage<NoteRecognizeContainerSetting>('NOTE_RECOGNIZE_CONFIG', {
+    startNote: 'C4', endNote: 'C6', accidental: 'natural'
   })
+  const noteRandom = useMemo(() => 
+    new NoteRandom(startNote, endNote, note => {
+      switch(accidental) {
+        case 'all': return true
+        case 'sharp': return note.acc === '#'
+        case 'flat': return note.acc === 'b'
+        case 'natural': return note.acc === ''
+      }
+    }), [startNote, endNote, accidental])
 
   const [correctCount, plusCorrectCount] = useReducer(s => s + 1, 0)
   const [incorrectCount, plusIncorrectCount] = useReducer(s => s + 1, 0)
-  const [noteGroup, setNoteGroup] = useState(() => R.take(4, randomNoteList('E3', 'D7', {accidental: 'natural'})))
-  const correctNote = useMemo(() => noteGroup[0], [noteGroup])
-  const noteList = useMemo(() => shuffle(noteGroup), [noteGroup])
+  const [noteList, setNoteList] = useState(() => noteRandom.nextNoteList(4))
+  const correctNote = useMemo(() => randomItem(noteList), [noteList])
 
   const onAnswer = useCallback((correct: boolean) => {
     correct ? plusCorrectCount() : plusIncorrectCount();
-    setNoteGroup(R.take(4, randomNoteList(startNote, endNote, {accidental})))
+    setNoteList(noteRandom.nextNoteList(4))
   }, [startNote, endNote, accidental])
 
   return (
     <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
       <Stave keySignature="C" notes={[correctNote]}/>
       <SingleAnswerGroup onCorrect={() => onAnswer(true)} onIncorrect={() => onAnswer(false)}>
-        {noteList.map((note, i) => <Answer key={note.name} label={note.name} correct={note.name === correctNote.name}/>)}
+        {noteList.map((note, i) => <Answer key={note} label={note} correct={note === correctNote}/>)}
       </SingleAnswerGroup>
       <div style={{display: 'flex', gap: '2em'}}>
-        <Stat label="correct" number={correctCount} align="center" labelPosition="down" />
-        <Stat label="incorrect" number={incorrectCount} align="center" labelPosition="down" />
+        <Stat label="Correct" number={correctCount} align="center" labelPosition="down" />
+        <Stat label="Incorrect" number={incorrectCount} align="center" labelPosition="down" />
       </div>
     </div>
   )

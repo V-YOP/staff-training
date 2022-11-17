@@ -1,6 +1,7 @@
 import * as R from 'ramda'
 import * as T from '@tonaljs/tonal'
 import * as Tc from '@tonaljs/core'
+import { shuffle } from './CollectionUtil'
 
 const SEMITONE2NOTES: Record<number, string[]> = {
   '12': [ 'C1', 'Dbb1', 'B#1' ],
@@ -142,38 +143,20 @@ function notesBetween(startNoteInclusive: string, endNoteInclusive: string): str
   return R.chain(getNotesBySemitones)(R.range(lower, higher))
 }
 
-/**
- * shuffle in-place
- * @param arr 
- */
-function shuffle<T>(arr: T[]): void {
-  let n = arr.length,
-  tmp,
-  random
-  while(n != 0){
-    random = Math.floor(Math.random() * n)
-    n-- // n减一
-    // 交换
-    tmp = arr[n]
-    arr[n] = arr[random]
-    arr[random] = tmp
-  }
-}
-
-type Accidental = '#' | 'b' | '' | 'bb' | 'x'
-
-class NoteRandom {
+// 当前的抽象有点弱智，考虑用函数而非类，先提供最广泛的接口，即只接受一个filter函数和一些最抽象的配置
+export class NoteRandom {
   constructor(
     private startNoteInclusive: string,
     private endNoteInclusive: string,
-    private validAccidental: Accidental[] = ['', '#', 'x']
+    private noteFilter: (note: Tc.Note) => boolean = R.T,
+    private withOctave: boolean = true // TODO
   ) {}
   nextNote(): string {
-    return this.nextNoteList(1)[0]
+    return this.nextNoteList()[0]
   }
-  nextNoteList(len: number): string[] {
+  nextNoteList(len: number = 4): string[] {
     const noteList = notesBetween(this.startNoteInclusive, this.endNoteInclusive)
-      .filter(note => R.any(R.equals(T.Note.get(note).acc), this.validAccidental))
+      .filter(note => this.noteFilter(T.Note.get(note) as Tc.Note))
     if (noteList.length < len) {
       throw new Error(`There are only ${noteList.length} valid notes but acquired ${len} notes.`)
     }
@@ -182,4 +165,4 @@ class NoteRandom {
   }
 }
 
-const noteRandom = new NoteRandom('C4', 'C6', [''])
+console.log(new NoteRandom('C4', 'C6', note => note.acc === '').nextNoteList(4))

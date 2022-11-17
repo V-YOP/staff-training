@@ -1,4 +1,7 @@
-import R from 'ramda'
+import * as R from 'ramda'
+import * as T from '@tonaljs/tonal'
+import * as Tc from '@tonaljs/core'
+import { shuffle } from './CollectionUtil'
 
 const SEMITONE2INTERVALS: Record<number, string[]> = {
   '-2': [ 'dd1' ],
@@ -77,4 +80,24 @@ function intervalsBetween(startIntervalInclusive: string, endIntervalInclusive: 
   const lower = R.min(s1, s2)
   const higher = R.max(s1, s2)
   return R.chain(getIntervalsBySemitones)(R.range(lower, higher))
+}
+
+export class IntervalRandom {
+  constructor(
+    private startIntervalInclusive: string,
+    private endIntervalInclusive: string,
+    private intervalFilter: (note: Tc.Interval) => boolean = R.T,
+  ) {}
+  nextInterval(): string {
+    return this.nextIntervalList()[0]
+  }
+  nextIntervalList(len: number = 4): string[] {
+    const intervalList = intervalsBetween(this.startIntervalInclusive, this.endIntervalInclusive)
+      .filter(interval => this.intervalFilter(T.Interval.get(interval) as Tc.Interval))
+    if (intervalList.length < len) {
+      throw new Error(`There are only ${intervalList.length} valid intervals but acquired ${len}.`)
+    }
+    shuffle(intervalList)
+    return R.take(len, intervalList)
+  }
 }

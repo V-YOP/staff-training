@@ -46,14 +46,16 @@ export const Header: FC<{}> = () => {
   return (
     <HeaderContainer>
       <HeaderSection>
-        <Link to='NOTE_RECOGNIZE'>Staff Training</Link>
-        <Link to='NOT_IMPLEMENTED'>Note</Link>
-        <Link to='NOT_IMPLEMENTED'>Key</Link>
-        <Link to='NOT_IMPLEMENTED'>Chord</Link>
-        <Link to='NOT_IMPLEMENTED'>Interval</Link>
+        <HeaderLogo>Staff Training</HeaderLogo>
+        <Link to='NOTE_RECOGNIZE'>音符/Note</Link>
+        <Link to='NOT_IMPLEMENTED'>调号/Key</Link>
+        <Link to='NOT_IMPLEMENTED'>首调唱名/Tonic Sol-fa</Link>
+        <Link to='NOT_IMPLEMENTED'>和弦/Chord</Link>
+        <Link to='NOT_IMPLEMENTED'>音程/Interval</Link>
       </HeaderSection>
       <HeaderSection>
-      <Link to='ABOUT'>About</Link>
+        <Link to='NOT_IMPLEMENTED'>统计/Stats</Link>
+        <Link to='ABOUT'>关于/About</Link>
       </HeaderSection>
     </HeaderContainer>
   )
