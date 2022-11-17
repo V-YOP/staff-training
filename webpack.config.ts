@@ -4,11 +4,13 @@ import 'webpack-dev-server';
 import HtmlWebpackPlugin from 'html-webpack-plugin'
 import MiniCssExtractPlugin from  "mini-css-extract-plugin"
 
+const isProduction = process.argv[process.argv.indexOf('--mode') + 1] === 'production';
+
 // Configuration是Webpack的配置项类型
 const conf: Configuration = {
   mode: 'development', // 默认为production模式
   entry: './src/index.tsx', // 入口js文件，可以配置多个entry
-  devtool: 'inline-source-map',
+  devtool: isProduction ? void 0 : 'inline-source-map',
   watch: true,
   output: {
     path: path.resolve(__dirname, 'dist'), // 输出路径
