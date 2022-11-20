@@ -1,4 +1,3 @@
-import R from "ramda"
 import { FC } from "react"
 import { Case, CaseParam } from "./Case"
 import { useRoute } from '../../RouteProvider';

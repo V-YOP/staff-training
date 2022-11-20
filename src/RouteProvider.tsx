@@ -3,6 +3,10 @@ import { createContext, useContext } from 'react';
 
 export const ROUTES = [
   'NOTE_RECOGNIZE', 
+  'KEY_RECOGNIZE',
+  'TONIC_SOLFA_RECOGNIZE',
+  'CHORD_RECOGNIZE',
+  'INTERVAL_RECOGNIZE',
   'NOT_IMPLEMENTED',
   'ABOUT',
   ''
@@ -23,7 +27,7 @@ export function RouteProvider({
 }: RouteProviderParam) {
   const state = useState(defaultRoute)
   return <RouteContext.Provider value={state}>
-  {children}
+    {children}
   </RouteContext.Provider>
 }
 

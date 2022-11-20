@@ -13,13 +13,18 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@types/lodash": "^4.14.189",
     "@types/node": "^18.7.6",
     "@types/react": "^18.0.17",
     "@types/react-dom": "^18.0.6",
-    "@types/styled-components": "^5.1.26",
     "@types/webpack": "^5.28.0",
+    "@typescript-eslint/eslint-plugin": "^5.43.0",
+    "@typescript-eslint/parser": "^5.43.0",
     "ajv": "^8.11.0",
     "css-loader": "^6.7.1",
+    "eslint": "^8.28.0",
+    "eslint-plugin-react": "^7.31.11",
+    "eslint-plugin-react-hooks": "^4.6.0",
     "html-entities": "^2.3.3",
     "html-webpack-plugin": "^5.5.0",
     "mini-css-extract-plugin": "^2.6.1",
@@ -33,14 +38,20 @@
     "webpack-dev-server": "^4.10.0"
   },
   "dependencies": {
+    "@chakra-ui/icons": "^2.0.12",
+    "@chakra-ui/react": "^2.4.1",
+    "@emotion/react": "^11.10.5",
+    "@emotion/styled": "^11.10.5",
+    "@fontsource/open-sans": "^4.5.13",
+    "@fontsource/raleway": "^4.5.11",
     "@tonaljs/tonal": "^4.6.5",
-    "@types/ramda": "^0.28.20",
-    "normalize.css": "^8.0.1",
-    "ramda": "^0.28.0",
+    "framer-motion": "^7.6.7",
+    "lodash": "^4.17.21",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-icons": "^4.6.0",
     "react-scripts": "^5.0.1",
-    "styled-components": "^5.3.6",
-    "vexflow": "^4.0.3"
+    "vexflow": "^4.0.3",
+    "zod": "^3.19.1"
   }
 }

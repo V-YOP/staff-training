@@ -1,19 +1,11 @@
+import {shuffle as s} from '@tonaljs/collection'
+
 /**
  * shuffle in-place
  * @param arr 
  */
- export function shuffle<T>(arr: T[]): void {
-    let n = arr.length,
-    tmp,
-    random
-    while(n != 0){
-      random = Math.floor(Math.random() * n)
-      n-- // n减一
-      // 交换
-      tmp = arr[n]
-      arr[n] = arr[random]
-      arr[random] = tmp
-    }
+ export function shuffle<T>(arr: T[]): T[] {
+    return s([...arr])
   }
 
 export function randomItem<T>(arr: T[]): T {

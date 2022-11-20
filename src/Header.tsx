@@ -1,35 +1,39 @@
-import { FC } from "react";
-import styled from "styled-components";
+import { DarkModeToggle } from "@/component/DarkModeToggle";
+import { Box, Button, Heading, Text } from "@chakra-ui/react";
+import React, { FC } from "react";
 import { Route, useRoute } from './RouteProvider';
 
-const HeaderContainer = styled.div`
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  position: sticky;
-  top: 0;
-  padding: 0.5em;
-  border-bottom: 1px solid black;
-`
+const HeaderContainer: FC<{children?: React.ReactNode}> = ({children}) => {
+  return (
+    <Box
+      width='100%'
+      display='flex'
+      justifyContent='space-between'
+      position='sticky'
+      top='0'
+      padding='4'
+      boxShadow={'md'}
+      >
+      {children}
+    </Box>
+  )
+}
 
-const HeaderSection = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5em;
-`
-
-const HeaderLogo = styled.div`
-
-`
-
-const HeaderItem = styled.div<{active?: boolean}>`
-  cursor: pointer;
-  padding: 0.5em 1em;
-`
+const HeaderSection: FC<{children?: React.ReactNode}> = ({children}) => {
+  return (
+    <Box
+      width='fit-content'
+      display='flex'
+      alignItems='center'
+      gap={4}>
+      {children}
+    </Box>
+  )
+}
 
 type LinkParam = {
   to: Route,
-  children?: React.ReactNode
+  children: string
 }
 
 const Link = ({
@@ -37,25 +41,34 @@ const Link = ({
   children
 }: LinkParam) => {
   const [route, setRoute] = useRoute()
+  //  <HeaderItem active={to === route} onClick={() => setRoute(to)}>{children}</HeaderItem>
   return (
-    <HeaderItem active={to === route} onClick={() => setRoute(to)}>{children}</HeaderItem>
+    <>
+      <Button minW={28} height={10} fontSize={'xl'} borderRadius={'3xl'} colorScheme='blue' onClick={() => setRoute(to)} variant={to === route ? 'solid' : 'ghost'}>
+        {children}
+      </Button>
+    </>
   )
 }
 
-export const Header: FC<{}> = () => {
+export const Header: FC<Record<string, never>> = () => {
+  const [, setRoute] = useRoute()
   return (
     <HeaderContainer>
       <HeaderSection>
-        <HeaderLogo>Staff Training</HeaderLogo>
-        <Link to='NOTE_RECOGNIZE'>音符/Note</Link>
-        <Link to='NOT_IMPLEMENTED'>调号/Key</Link>
-        <Link to='NOT_IMPLEMENTED'>首调唱名/Tonic Sol-fa</Link>
-        <Link to='NOT_IMPLEMENTED'>和弦/Chord</Link>
-        <Link to='NOT_IMPLEMENTED'>音程/Interval</Link>
+        <Button variant='link' marginRight={4}>
+          <Heading onClick={() => setRoute('ABOUT')}>Staff Quiz</Heading>
+        </Button>
+        <Link to='NOTE_RECOGNIZE'>NOTE</Link>
+        <Link to='KEY_RECOGNIZE'>KEY</Link>
+        <Link to='TONIC_SOLFA_RECOGNIZE'>TONIC SOL-FA</Link>
+        <Link to='CHORD_RECOGNIZE'>CHORD</Link>
+        <Link to='INTERVAL_RECOGNIZE'>INTERVAL</Link>
       </HeaderSection>
       <HeaderSection>
-        <Link to='NOT_IMPLEMENTED'>统计/Stats</Link>
-        <Link to='ABOUT'>关于/About</Link>
+        {/* <Link to='NOT_IMPLEMENTED'>STATS</Link>
+        <Link to='ABOUT'>ABOUT</Link> */}
+        <DarkModeToggle />
       </HeaderSection>
     </HeaderContainer>
   )

@@ -1,30 +1,5 @@
+import { Stat, StatLabel, StatNumber } from "@chakra-ui/react"
 import { FC } from "react"
-import styled from "styled-components"
-
-
-const f: FC<{a: number, b: string}> = param => <></>
-
-
-const StatContainer = styled.dl<{align: 'left' | 'center' | 'right'}>`
-  flex-flow: column nowrap;
-  align-items: ${({align}) => 
-    align === 'left' ? 
-      'flex-start' :
-      align === 'center' ?
-        'center': 
-        'flex-end'};
-  display: flex;
-  width: fit-content;
-`
-
-const StatLabel = styled.dt`
-  font-size: 1em;
-`
-
-const StatValue = styled.dd`
-  font-size: 2em;
-  margin-left: 0;
-`
 
 type StatParam = {
   label: string
@@ -33,18 +8,14 @@ type StatParam = {
   labelPosition? : 'up' | 'down'
 }
 
-export const Stat: FC<StatParam> = ({
-  label, number, align = 'left', labelPosition = 'up'
+export const NumberStat: FC<StatParam> = ({
+  label, number
 }) => {
   return (
-    <StatContainer align={align}>
-    {labelPosition === 'up' ? 
-      <><StatLabel>{label}</StatLabel>
-      <StatValue>{number}</StatValue></> :
-      <><StatValue>{number}</StatValue>
-      <StatLabel>{label}</StatLabel></>
-    }
-    </StatContainer>
+    <Stat>
+      <StatLabel>{label}</StatLabel>
+      <StatNumber>{number}</StatNumber>
+    </Stat>
   )
 }
 

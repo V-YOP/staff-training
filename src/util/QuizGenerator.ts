@@ -1,45 +1,53 @@
+import _ from "lodash"
 import { shuffle } from "./CollectionUtil"
-import * as R from 'ramda'
 
-export type SingleAnswerQuizGenerator<T> = {
+export type SAQG<T> = {
+  choices(): T[],
   nextQuiz(choiceCount: number): [answer: T, choices: T[]]
 }
 
-export type MultipleAnswerQuizGenerator<T> = {
+export type MAQG<T> = {
+  choices(): T[],
   nextQuiz(answerCount: number, choiceCount: number): [answers: T[], choices: T[]]
 }
 
 
-export function mkSingleAnswerQuizGenerator<T>(answerScope: T[]): SingleAnswerQuizGenerator<T> {
+export function mkSAQG<T>(answerScope: T[]): SAQG<T> {
   const answerScopeCopy = [...answerScope]
+  let lastAnswer: T | null = null;
   return {
+    choices() {return answerScopeCopy},
     nextQuiz(choiceCount) {
       const shuffledAnswerScope = shuffle(answerScopeCopy)
-      const choices = R.take(choiceCount, shuffledAnswerScope)
+      const choices = _.take(shuffledAnswerScope, choiceCount)
       const answer = choices[0]
+      if (answer === lastAnswer) {
+        return this.nextQuiz(choiceCount)
+      }
+      lastAnswer = answer
       return [answer, shuffle(choices)] 
     }
   }
 }
 
-export function mkMultipleAnswerQuizGenerator<T>(answerScope: T[]): MultipleAnswerQuizGenerator<T> {
+export function mkMAQG<T>(answerScope: T[]): MAQG<T> {
   const answerScopeCopy = [...answerScope]
   return {
+    choices() {return answerScopeCopy},
     nextQuiz(answerCount, choiceCount) {
       if (answerCount <= 0) {
         throw new Error(`answer number cannot less or equal than 0!`)
       }
-      if (answerCount > answerScope.length) {
-        throw new Error(`Requested answer number is bigger than answer set!`)
-      }
+      
       if (choiceCount > answerCount) {
         throw new Error('Choice number cannot be bigger than answer number!')
       }
       const shuffledAnswerScope = shuffle(answerScopeCopy)
-      const choices = R.take(choiceCount, shuffledAnswerScope)
+      const choices = _.take(shuffledAnswerScope, choiceCount)
 
-      const answers = R.take(answerCount, choices)
+      const answers = _.take(choices, answerCount)
       return [answers, shuffle(choices)]
     },
   }
 }
+

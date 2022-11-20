@@ -2,8 +2,9 @@
 import React, { useEffect, useMemo } from "react";
 import * as V from 'vexflow';
 import * as T from '@tonaljs/tonal';
-import * as Tc from '@tonaljs/core';
-import * as R from 'ramda'
+import { Note } from "@/musicTheory/Note";
+import _ from "lodash";
+import { Box, Flex, useColorMode } from "@chakra-ui/react";
 
 /**
  * 
@@ -11,7 +12,7 @@ import * as R from 'ramda'
  */
 function getGUID(): string {
   function _p8(s?: boolean) {
-    var p = (Math.random().toString(16) + "000000000").substring(2, 8);
+    const p = (Math.random().toString(16) + "000000000").substring(2, 8);
     return s ? "-" + p.substring(0, 4) + "-" + p.substring(4, 4) : p;
   }
   return _p8() + _p8(true) + _p8(true) + _p8();
@@ -23,25 +24,18 @@ function getGUID(): string {
  * @param keySignature tonic, upper case corresponds to major key and lower case corresponds to minor key
  * @returns 
  */
-function getDisplayAccidental(note: Tc.Note, keySignature: string): string {
+function getDisplayAccidental(note: Note, keySignature: string): string {
   // TODO
   const key = keySignature.toUpperCase() === keySignature ? T.Key.majorKey(keySignature) : T.Key.majorKey(keySignature)
-  const noteName = note.letter + note.acc
+  const noteName = note.letter + note.accidental
 
   // if this note is in the key scale, no accidental
-  if (R.any(R.equals(noteName))(key.scale)) return ''
+  if (_.some(key.scale, scale => noteName === scale)) return ''
 
   // if note's original accidental is natural, use 
-  if (note.acc === '') return 'n'
-  return note.acc
+  if (note.accidental === '') return 'n'
+  return note.accidental
 }
-
-// const NOTE_NAMES = ['C', 'D', 'E', 'F', 'G', 'A', 'B'] as const
-// type NoteName = (typeof NOTE_NAMES)[number]
-// const ACCIDENTALS = ['', '#', 'b', 'x', 'bb'] as const
-// type Accidental = (typeof ACCIDENTALS)[number]
-// const OCTAVES = [1, 2, 3, 4, 5, 6, 7, 8] as const 
-// type Octave = (typeof OCTAVES)[number]
 
 export type StaveParam = Partial<{
   width: number
@@ -55,7 +49,7 @@ export type StaveParam = Partial<{
   /**
    * Notes sequence, element within is single note or chord 
    */
-  notes: (T.NoteLiteral | T.NoteLiteral[])[]
+  notes: (Note | Note[])[]
 }>
 
 export interface StaveOpt {
@@ -75,18 +69,14 @@ export const Stave : React.ForwardRefExoticComponent<StaveParam & React.RefAttri
     staffYOffset = 30,
     staffWidth = 300,
     notes = [],
-    style
   }, ref) => {
-
+  const {colorMode} = useColorMode();
   const randomId = useMemo(getGUID, [])
   const staveNotes = useMemo<V.StaveNote[]>(() => {
     return notes.map(noteOrChord => {
-      const notes = (Array.isArray(noteOrChord) ? noteOrChord : [noteOrChord]).map(noteLiteral => {
-        const note = T.Note.get(noteLiteral)
-        if (!note.empty) return note
-        throw new Error(`Note literal ${note} is invalid!`)
-      })
-      const keys = notes.map(note => `${note.letter}${note.acc}/${note.oct ?? 4}`) 
+      const notes = Array.isArray(noteOrChord) ? noteOrChord : [noteOrChord]
+
+      const keys = notes.map(note => `${note.letter}${note.accidental}/${note.octave?? 4}`) 
       return notes.reduce((acc, x, index) => {
         const displayAccidental = getDisplayAccidental(x, keySignature)
         if (displayAccidental !== '') {
@@ -107,6 +97,7 @@ export const Stave : React.ForwardRefExoticComponent<StaveParam & React.RefAttri
     const renderer = new V.Renderer(div, V.RendererBackends.SVG);
     renderer.resize(width, height)
     const context = renderer.getContext();
+    
     const stave = new V.Stave(staffXOffset, staffYOffset, staffWidth)
         .addClef(clef)
         .addKeySignature(keySignature)
@@ -118,10 +109,18 @@ export const Stave : React.ForwardRefExoticComponent<StaveParam & React.RefAttri
     return () => {
       [...div.children].forEach(node => node.remove())
     }
-  }, [clef, width, height, notes, style])
+  })
   return (
-    <>
-      <div style={style} id={randomId}></div>
-    </>
+    <Box 
+      borderRadius="3xl"
+      boxShadow='xl'>
+      <Flex 
+        justifyContent="center"
+        alignItems="center"
+        width={width + 20} 
+        height={height + 20} 
+        id={randomId} filter={colorMode === 'dark' ? 'invert(100%)' : 'unset'}></Flex>
+    </Box>
   )
 })
+Stave.displayName = 'Stave'
