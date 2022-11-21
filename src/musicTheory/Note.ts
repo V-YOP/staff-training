@@ -1,3 +1,5 @@
+import { Err, Ok, Result } from '@/monads/'
+import { resultSequence } from '@/monads/result'
 import * as T from '@tonaljs/tonal'
 import _ from 'lodash'
 import { z } from 'zod'
@@ -100,33 +102,35 @@ export class Note {
     note1 => note2 => note1.name === note2.name
   
   static allNote(withOctave = true): Note[] {
-    return _.sortBy((withOctave ? ALL_NOTE : ALL_NOTE_WITHOUT_OCTAVE).map(Note.get) as Note[], note => note.id)
+    return _.sortBy(resultSequence((withOctave ? ALL_NOTE : ALL_NOTE_WITHOUT_OCTAVE).map(Note.get)).unwrap(), note => note.id)
   }
-  static between(startNoteInclusive: Note, endNoteInclusive: Note): Note[] | Error {
+  static between(startNoteInclusive: Note, endNoteInclusive: Note): Result<Note[], Error> {
     if (_.isNil(startNoteInclusive.octave) !== _.isNil(endNoteInclusive.octave)) {
-      return new Error(`Note Range should both or both not have octave! startNote: ${startNoteInclusive.name}, endNote: ${endNoteInclusive.name}`)
+      return Err(new Error(`Note Range should both or both not have octave! startNote: ${
+        startNoteInclusive.name}, endNote: ${endNoteInclusive.name}`))
     }
     
     const range = _.isNil(startNoteInclusive.octave) ?
       [NOTE_WITHOUT_OCT2INDEX[startNoteInclusive.name], NOTE_WITHOUT_OCT2INDEX[endNoteInclusive.name]] :
       [NOTE2INDEX[startNoteInclusive.name], NOTE2INDEX[endNoteInclusive.name]]
+
     const target = _.isNil(startNoteInclusive.octave) ?
       ENHARMONIC_NOTES_WITHOUT_OCTAVE : ENHARMONIC_NOTES
     
     const lower = Math.min(...range)
     const higher = Math.max(...range)
     
-    return  _.sortBy(_.range(lower, higher + 1).flatMap(i => target[i]).map(Note.get) as Note[], note => note.id)
+    return Ok(_.sortBy(_.range(lower, higher + 1).flatMap(i => target[i]).map(Note.get).map(res => res.unwrap()), note => note.id))
   }
 
-  static get(noteStr: string): Note | Error;
-  static get(noteLiteral: NoteLiteral): Note | Error;
-  static get(noteStr: string): Note | Error {
+  static get(noteStr: string): Result<Note, Error>;
+  static get(noteLiteral: NoteLiteral): Result<Note, Error>;
+  static get(noteStr: string): Result<Note, Error> {
     const note = T.Note.get(noteStr)
     if (note.empty) {
-      return new Error(`Note ${noteStr} is invalid`)
+      return Err(new Error(`Note ${noteStr} is invalid`))
     }
-    return new Note(note.letter as Letter, note.acc as Accidental, note.chroma as Chroma, note.oct)
+    return Ok(new Note(note.letter as Letter, note.acc as Accidental, note.chroma as Chroma, note.oct))
   }
 
   private constructor(
@@ -176,9 +180,9 @@ export class Note {
   }
 
   enharmonicNotes(): Note[] {
-    return _.sortBy((_.isNil(this.octave) ? 
-      ENHARMONIC_NOTES_WITHOUT_OCTAVE[NOTE_WITHOUT_OCT2INDEX[this.name]] : 
-      ENHARMONIC_NOTES[NOTE2INDEX[this.name]]).map(Note.get) as Note[], note => note.id)
+    return _.sortBy(resultSequence((_.isNil(this.octave) ? 
+    ENHARMONIC_NOTES_WITHOUT_OCTAVE[NOTE_WITHOUT_OCT2INDEX[this.name]] : 
+    ENHARMONIC_NOTES[NOTE2INDEX[this.name]]).map(Note.get)).unwrap(), note => note.id)
   }
 }
 
