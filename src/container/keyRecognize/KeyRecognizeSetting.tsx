@@ -5,7 +5,8 @@ import { FormControl, FormHelperText, FormLabel, HStack, Select, Switch, VStack,
 import _ from "lodash";
 
 const allNaturalNote = Note.allNote().filter(note => note.accidental === '')
-export const NoteRecognizeSettingComponent = () => {
+
+export const KeyRecognizeSettingComponent = () => {
   const {setting: {NoteRecognize: {startNoteInclusive,endNoteInclusive,accidentals,withOctave,choiceCount, sortAnswer,accidentalRelateKey}}, updateSetting, resetSetting} = useSetting()
   const update = useCallback((setting: Partial<Setting['NoteRecognize']>) => {
     updateSetting({NoteRecognize: setting})

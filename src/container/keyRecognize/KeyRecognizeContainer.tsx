@@ -8,9 +8,9 @@ import { useSetting } from '@/SettingProvider'
 import { Note } from "@/musicTheory/Note";
 import { HStack, VStack } from "@chakra-ui/react";
 import _ from "lodash";
-import { NoteRecognizeSettingComponent } from "@/container/noteRecognize/NoteRecognizeSetting";
+import { KeyRecognizeSettingComponent } from "@/container/keyRecognize/KeyRecognizeSetting";
 
-export const NoteRecognizeContainer: FC<Record<string,never>> = () => {
+export const KeyRecognizeContainer: FC<Record<string,never>> = () => {
   const {setting: {NoteRecognize: {startNoteInclusive,endNoteInclusive,choiceCount,accidentals,withOctave,sortAnswer}}} = useSetting()
   const noteRecognizeQuiz = useMemo(() => {
     return noteSAQG(andP(
@@ -28,7 +28,7 @@ export const NoteRecognizeContainer: FC<Record<string,never>> = () => {
   useEffect(() => {
     setQuiz(noteRecognizeQuiz.nextQuiz(choiceCount))
   }, [choiceCount, noteRecognizeQuiz])
-  
+
   const onAnswer = useCallback((correct: boolean) => {
     correct ? plusCorrectCount() : plusIncorrectCount();
     setQuiz(noteRecognizeQuiz.nextQuiz(choiceCount))
@@ -53,7 +53,7 @@ export const NoteRecognizeContainer: FC<Record<string,never>> = () => {
         </HStack>
       </VStack>
       <VStack padding={4}>
-        <NoteRecognizeSettingComponent />
+        <KeyRecognizeSettingComponent />
       </VStack>
     </HStack>
   )

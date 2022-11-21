@@ -19,8 +19,7 @@ export const prefabNotePredicate = {
    */
   noteBetween(startNote: Note, endNote: Note): (note: Note) => boolean {
     if (_.isNil(startNote.octave) || _.isNil(endNote.octave)) return _.constant(true)
-    const validNotes = Note.between(startNote, endNote)
-    if (validNotes instanceof Error) throw validNotes;
+    const validNotes = Note.between(startNote, endNote).unwrap()
     return note => _.some(validNotes, Note.equal(note))
   },
   /**
