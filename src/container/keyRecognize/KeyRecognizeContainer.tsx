@@ -43,7 +43,7 @@ export const KeyRecognizeContainer: FC<Record<string,never>> = () => {
   return (
     <HStack maxWidth={960} marginLeft="auto" marginRight="auto" justifyContent="space-between" alignItems="flex-start" gap={10}>
       <VStack flexBasis='360px' spacing={10} paddingTop={4} >
-        <Stave staffYOffset={-100} height={150} keySignature={answerList[0].name} notes={[]} />
+        <Stave staffYOffset={25} height={150} keySignature={answerList[0].name} notes={[]} />
         <MultipleAnswerGroup onCorrect={() => onAnswer(true)} onIncorrect={() => onAnswer(false)}>
           {(sortAnswer ? _.sortBy(displayedChoices, key => key.tonic.id) : displayedChoices).map(key => 
             <Answer key={key.name} label={key.name} correct={_.some(answerList, Key.equal(key))}/>)}
