@@ -4,7 +4,7 @@ import * as V from 'vexflow';
 import * as T from '@tonaljs/tonal';
 import { Note } from "@/musicTheory/Note";
 import _ from "lodash";
-import { Box, Flex, useColorMode } from "@chakra-ui/react";
+import { Box, chakra, Flex, useColorMode } from "@chakra-ui/react";
 
 /**
  * 
@@ -69,6 +69,7 @@ export const Stave : React.ForwardRefExoticComponent<StaveParam & React.RefAttri
     staffYOffset = 30,
     staffWidth = 300,
     notes = [],
+    style = {}
   }, ref) => {
   const {colorMode} = useColorMode();
   const randomId = useMemo(getGUID, [])
@@ -113,7 +114,8 @@ export const Stave : React.ForwardRefExoticComponent<StaveParam & React.RefAttri
   return (
     <Box 
       borderRadius="3xl"
-      boxShadow='xl'>
+      boxShadow='xl'
+      style={style}>
       <Flex 
         justifyContent="center"
         alignItems="center"

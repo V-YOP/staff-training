@@ -1,3 +1,4 @@
+import { useLocalStorage } from '@/useLocalStorage';
 import { useState } from 'react';
 import { createContext, useContext } from 'react';
 
@@ -25,8 +26,9 @@ export function RouteProvider({
   defaultRoute = 'NOTE_RECOGNIZE',
   children
 }: RouteProviderParam) {
-  const state = useState(defaultRoute)
-  return <RouteContext.Provider value={state}>
+  const route = useLocalStorage('ROUTE', defaultRoute)
+
+  return <RouteContext.Provider value={route}>
     {children}
   </RouteContext.Provider>
 }

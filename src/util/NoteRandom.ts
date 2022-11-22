@@ -4,7 +4,6 @@ import _ from 'lodash'
 
 export function noteSAQG(filter: (note: Note) => boolean, withOctave = true): SAQG<Note> {
   const validNotes = Note.allNote(withOctave).filter(filter)
-  console.log(Note.allNote(false))
   return mkSAQG(validNotes)
 }
 

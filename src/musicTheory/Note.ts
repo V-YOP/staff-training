@@ -1,4 +1,4 @@
-import { Err, Ok, Result } from '@/monads/'
+import { Err, Ok, Result } from '@/monads'
 import { resultSequence } from '@/monads/result'
 import * as T from '@tonaljs/tonal'
 import _ from 'lodash'

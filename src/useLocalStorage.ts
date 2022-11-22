@@ -1,6 +1,10 @@
-const STORAGE_KEY = 'storage'
+import { useReducer } from "react"
 
-export function useLocalStorage<T extends object>(itemName: string, defaultValue: T): [T, (newValue: T | ((oldValue: T) => T)) => void] {
+const STORAGE_KEY = 'CUSTOM_STORAGE'
+
+export function useLocalStorage<T>(itemName: string, defaultValue: T): [T, (newValue: T | ((oldValue: T) => T)) => void] {
+  const [, plus] = useReducer(c => c + 1, 0)
+
   const objects = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '{}')
   const oldValue = objects[itemName] ?? defaultValue
 
@@ -13,6 +17,7 @@ export function useLocalStorage<T extends object>(itemName: string, defaultValue
     }
     objects[itemName] = newValue
     localStorage.setItem(STORAGE_KEY, JSON.stringify(objects))
+    plus()
   }
   if (!objects[itemName]) {
     setItem(defaultValue)

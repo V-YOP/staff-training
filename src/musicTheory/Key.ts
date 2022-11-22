@@ -1,15 +1,14 @@
 import { Note } from './Note';
 import * as T from '@tonaljs/tonal';
-import { Err, Ok, Result } from '@sniptt/monads';
-import { resultSequence } from '@/monads/result';
+import { Ok, Result, resultSequence, Err } from '@/monads/result';
 
-const MAJOR_SCALES = ['F', 'C', 'G', 'D', 'A', 'E', 'B', 'Gb', 'F#', 'Cb', 'Db', 'C#', 'Ab', 'Eb',       'Bb'] as const
-const MINOR_SCALES = ['f', 'c', 'g', 'd', 'a', 'e', 'b',       'f#',             'c#', 'g#', 'd#', 'a#', 'bb'] as const
+const MAJOR_SCALES = ['F', 'C', 'G', 'D', 'A', 'E', 'B', 'Gb', 'F#', 'Cb', 'Db', 'C#', 'Ab', 'Eb',             'Bb'] as const
+const MINOR_SCALES = ['f', 'c', 'g', 'd', 'a', 'e', 'b',       'f#',             'c#', 'g#', 'eb', 'd#',       'bb'] as const
 
 type MajorKeyLiteral = (typeof MAJOR_SCALES)[number] 
 type MinorKeyLiteral = (typeof MINOR_SCALES)[number]
 
-type Mode = 'Major' | 'Minor'
+export type Mode = 'Major' | 'Minor'
 
 /**
  * Key is a set of note built with one note called tonic
@@ -27,6 +26,26 @@ export class Key<T extends Mode> {
   ){}
   get tonic() {return this._tonic}
   get mode() {return this._mode}
+  get name() { return `${this.mode === 'Major' ? this.tonic.letter.toUpperCase() : this.tonic.letter.toLocaleLowerCase()}${this.tonic.accidental}` }
+
+  static equal(key1: Key<Mode>): (key2: Key<Mode>) => boolean {
+    return key2 => Note.equal(key1.tonic)(key2.tonic) && key1.mode === key2.mode 
+  }
+  /**
+   * All major key in Circle of Fifths
+   * @returns 
+   */
+  static allMajorKey(): Key<'Major'>[] {
+    return resultSequence(MAJOR_SCALES.map(Key.get)).map(keys => keys.map(key => key.relateMajorKey())).unwrap()
+  }
+
+  /**
+   * All minor key in Circle of Fifths
+   * @returns 
+   */
+  static allMinorKey(): Key<'Minor'>[] {
+    return resultSequence(MINOR_SCALES.map(Key.get)).map(keys => keys.map(key => key.relateMinorKey())).unwrap()
+  }
 
   static get(keyLiteral: MajorKeyLiteral): Result<Key<'Major'>, Error>;
   static get(keyLiteral: MinorKeyLiteral): Result<Key<'Minor'>, Error>;
@@ -36,7 +55,7 @@ export class Key<T extends Mode> {
     if (keyLiteral instanceof Note) {
       keyLiteral = `${mode === 'Major' ? keyLiteral.letter.toUpperCase() : keyLiteral.letter.toLowerCase()}${keyLiteral.accidental}`
     }
-    if (!/[A-Ga-g][#b]?$/.test(keyLiteral)) {
+    if (!/[A-Ga-g](##|b|bb|#)?$/.test(keyLiteral)) {
       return Err(new Error(`Key '${keyLiteral}' is illegal.`))
     }
 
@@ -58,12 +77,11 @@ export class Key<T extends Mode> {
   
   relateMajorKey(): Key<'Major'> {
     if (this.isMajorKey()) return this
-    Key.get(this._majorKeyScale[2], 'Major').unwrap()
     return Key.get(this._majorKeyScale[2], 'Major').unwrap()
   }
   relateMinorKey(): Key<'Minor'> {
     if (this.isMinorKey()) return this
-    return Key.get(this._majorKeyScale[2], 'Minor').unwrap()
+    return Key.get(this._majorKeyScale[5], 'Minor').unwrap()
   }
 
   // /**
@@ -80,22 +98,6 @@ export class Key<T extends Mode> {
   //  */
   // static allMinorKeyTonic(): Note[] {
   //   return MINOR_SCALES.map(Note.get) as Note[]
-  // }
-
-  // /**
-  //  * All major key in Circle of Fifths
-  //  * @returns 
-  //  */
-  // static allMajorKey(): Key[] {
-  //   return MAJOR_SCALES.map(Key.get) as Key[]
-  // }
-
-  // /**
-  //  * All minor key in Circle of Fifths
-  //  * @returns 
-  //  */
-  // static allMinorKey(): Key[] {
-  //   return MINOR_SCALES.map(Key.get) as Key[]
   // }
 
   // static get(keyLiteral: KeyLiteral): Key;

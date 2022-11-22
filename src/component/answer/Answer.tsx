@@ -1,20 +1,30 @@
 import { Button } from "@chakra-ui/react"
+import _ from "lodash"
 import { createContext, FC, ReactNode, useContext } from "react"
 
+type AnswerContextValue = {
+  onAnswerClick(label: string): void,
+  selected?: Record<string, boolean>
+}
+
 // eslint-disable-next-line @typescript-eslint/no-empty-function
-export const AnswerContext = createContext<[onCorrect: () => void, onIncorrect: () => void]>([() => {}, () => {}])
+export const AnswerContext = createContext<AnswerContextValue>({
+  onAnswerClick: _.constant(false),
+  selected: {}
+})
 
 type AnswerButtonProps = {
   onClick(): void,
+  selected?: boolean
   children?: ReactNode
 }
 
-const AnswerButton: FC<AnswerButtonProps> = ({onClick, children}) => {
+const AnswerButton: FC<AnswerButtonProps> = ({onClick, selected = false, children}) => {
   return (
     <Button
       padding={[1, 0]}
       textAlign='center'
-      variant='outline'
+      variant={selected ? 'solid' : 'outline'}
       colorScheme='blue'
       size='lg'
       flexBasis={20}
@@ -24,16 +34,15 @@ const AnswerButton: FC<AnswerButtonProps> = ({onClick, children}) => {
   )
 }
 
-
 export interface AnswerParam {
-    label: string
-    correct?: boolean
-    style?: React.CSSProperties
-  }
+  label: string
+  correct?: boolean
+  style?: React.CSSProperties
+}
 
-export const Answer: FC<AnswerParam> = ({label, correct}) => {
-  const [onCorrect, onIncorrect] = useContext(AnswerContext)
+export const Answer: FC<AnswerParam> = ({label}) => {
+  const {onAnswerClick: onClick, selected = {}} = useContext(AnswerContext)
   return (
-    <AnswerButton onClick={() => correct ? onCorrect() : onIncorrect()}>{label}</AnswerButton>
+    <AnswerButton onClick={() => onClick(label)} selected={selected[label] ?? false}>{label}</AnswerButton>
   )
 }

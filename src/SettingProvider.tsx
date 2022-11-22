@@ -17,6 +17,9 @@ const Setting = z.object({
     sortAnswer: z.boolean(),
     answerType: z.literal('input').or(z.literal('choice')),
     clef: z.literal('treble').or(z.literal('bass')),
+  }),
+  KeyRecognize: z.object({
+    choiceCount: z.number().positive()
   })
 })
 
@@ -33,6 +36,9 @@ const defaultSetting: Setting = {
     sortAnswer: false,
     answerType: 'choice',
     clef: 'treble',
+  },
+  KeyRecognize: {
+    choiceCount: 6
   }
 }
 
