@@ -1,28 +1,12 @@
+import { RNG } from "@/monads/RNG"
 import _ from "lodash"
-import { shuffle } from "./CollectionUtil"
 
-export type SAQG<T> = {
-  choices(): T[],
-  nextQuiz(choiceCount: number): [answer: T, choices: T[]]
+export type QuizGenerator<T> = RNG<[answer: T, choices: T[]]>
+
+export function mkQuizGenerator<T>(choiceCount: number, answerScope: T[]): QuizGenerator<T> {
+  return RNG.shuffle(answerScope).flatMap(shuffledAnswers => {
+    const choices = _.take(shuffledAnswers, choiceCount)
+    const answer = choices[0]
+    return RNG.shuffle(choices).map(shuffledChoices => [answer, shuffledChoices])
+  })
 }
-
-export function mkSAQG<T>(answerScope: T[]): SAQG<T> {
-  const answerScopeCopy = [...answerScope]
-  let lastAnswer: T | null = null;
-  return {
-    choices() {return answerScopeCopy},
-    nextQuiz(choiceCount) {
-      const shuffledAnswerScope = shuffle(answerScopeCopy)
-      const choices = _.take(shuffledAnswerScope, choiceCount)
-      const answer = choices[0]
-
-      // no need to provide a equal function because it only should check if they are a same reference. 
-      if (answer === lastAnswer) {
-        return this.nextQuiz(choiceCount)
-      }
-      lastAnswer = answer
-      return [answer, shuffle(choices)] 
-    }
-  }
-}
-

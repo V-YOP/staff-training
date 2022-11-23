@@ -2,8 +2,8 @@ import { SingleAnswerGroup, Answer } from "@/component/answer";
 import { NumberStat } from "@/component/stat";
 import { Stave } from "@/component/stave/Stave";
 import { andP } from "@/util/FunctionUtil";
-import { noteSAQG, prefabNotePredicate } from "@/util/NoteRandom";
-import { FC, useCallback, useEffect, useMemo, useReducer, useState } from "react";
+import { noteQG, prefabNotePredicate } from "@/util/NoteRandom";
+import { FC, useCallback, useMemo, useReducer, useState } from "react";
 import { useSetting } from '@/SettingProvider'
 import { Note } from "@/musicTheory/Note";
 import { HStack, VStack } from "@chakra-ui/react";
@@ -12,28 +12,29 @@ import { NoteRecognizeSettingComponent } from "@/container/noteRecognize/NoteRec
 
 export const NoteRecognizeContainer: FC<Record<string,never>> = () => {
   const {setting: {NoteRecognize: {startNoteInclusive,endNoteInclusive,choiceCount,accidentals,withOctave,sortAnswer}}} = useSetting()
-  const noteRecognizeQuiz = useMemo(() => {
-    return noteSAQG(andP(
-        withOctave ? 
-        Note.get(startNoteInclusive).andThen(startNote =>
-          Note.get(endNoteInclusive).map(endNote => 
-            prefabNotePredicate.noteBetween(startNote, endNote)))
-            .unwrap() : _.constant(true),
-        prefabNotePredicate.accidentalIn(accidentals)), withOctave)
-  }, [accidentals, startNoteInclusive, endNoteInclusive, withOctave])
+  
+  const quizGenerator = useMemo(() => noteQG(choiceCount, andP(
+    withOctave ? 
+    Note.get(startNoteInclusive).andThen(startNote =>
+      Note.get(endNoteInclusive).map(endNote => 
+        prefabNotePredicate.noteBetween(startNote, endNote)))
+        .unwrap() : _.constant(true),
+    prefabNotePredicate.accidentalIn(accidentals)), withOctave), 
+    [accidentals, startNoteInclusive, endNoteInclusive, withOctave, choiceCount])
+
+  const [seed, setSeed] = useState(() => Math.random())
+  const [[answer, choices], nextSeed] = useMemo(() => quizGenerator.runState(seed), [seed, quizGenerator])
   
   const [correctCount, plusCorrectCount] = useReducer(s => s + 1, 0)
   const [incorrectCount, plusIncorrectCount] = useReducer(s => s + 1, 0)
-  const [[answer, choices], setQuiz] = useState(() => noteRecognizeQuiz.nextQuiz(choiceCount))
-  useEffect(() => {
-    setQuiz(noteRecognizeQuiz.nextQuiz(choiceCount))
-  }, [choiceCount, noteRecognizeQuiz])
+
   
   const onAnswer = useCallback((correct: boolean) => {
     correct ? plusCorrectCount() : plusIncorrectCount();
-    setQuiz(noteRecognizeQuiz.nextQuiz(choiceCount))
-  }, [choiceCount, noteRecognizeQuiz])
+    setSeed(nextSeed)
+  }, [nextSeed])
 
+  // if without octave, use a random octave number in [3, 5]
   const displayedAnswer = useMemo(() => {
     if (withOctave) return answer;
     return answer.withOctave(3 + Math.floor(Math.random() * 3))

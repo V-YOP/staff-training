@@ -8,7 +8,7 @@ const isProduction = process.env.NODE_ENV === 'production';
 
 // Configuration是Webpack的配置项类型
 const conf: Configuration = {
-  mode: 'development', // 默认为production模式
+  mode: isProduction ? 'production' : 'development', // 默认为production模式
   entry: './src/index.tsx', // 入口js文件，可以配置多个entry
   devtool: isProduction ? void 0 : 'inline-source-map',
   watch: true,

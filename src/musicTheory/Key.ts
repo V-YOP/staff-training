@@ -2,6 +2,14 @@ import { Note } from './Note';
 import * as T from '@tonaljs/tonal';
 import { Ok, Result, resultSequence, Err } from '@/monads/result';
 
+const Letter = ['C', 'D', 'E', 'F', 'G', 'A', 'B'] as const
+
+
+
+
+
+type Letter = (typeof Letter)[number]
+
 const MAJOR_SCALES = ['F', 'C', 'G', 'D', 'A', 'E', 'B', 'Gb', 'F#', 'Cb', 'Db', 'C#', 'Ab', 'Eb',             'Bb'] as const
 const MINOR_SCALES = ['f', 'c', 'g', 'd', 'a', 'e', 'b',       'f#',             'c#', 'g#', 'eb', 'd#',       'bb'] as const
 

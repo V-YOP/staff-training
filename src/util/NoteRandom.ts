@@ -1,10 +1,11 @@
-import { mkSAQG, SAQG } from './QuizGenerator';
+import { mkQuizGenerator, QuizGenerator } from './QuizGenerator';
 import { Accidental, Note } from '@/musicTheory/Note';
 import _ from 'lodash'
+import { Scale } from '@/musicTheory/Scale';
 
-export function noteSAQG(filter: (note: Note) => boolean, withOctave = true): SAQG<Note> {
+export function noteQG(choiceCount: number, filter: (note: Note) => boolean, withOctave = true): QuizGenerator<Note> {
   const validNotes = Note.allNote(withOctave).filter(filter)
-  return mkSAQG(validNotes)
+  return mkQuizGenerator(choiceCount, validNotes)
 }
 
 export const prefabNotePredicate = {
@@ -21,13 +22,15 @@ export const prefabNotePredicate = {
     const validNotes = Note.between(startNote, endNote).unwrap()
     return note => _.some(validNotes, Note.equal(note))
   },
-  /**
-   * check if note accidental in a given accidental set
-   * @param accidentals accidental set, empty string means no accidental
-   * @returns 
-   */
+
   accidentalIn(accidentals: Accidental[]): (note: Note) => boolean {
     return note => _.some(accidentals, acc => acc === note.accidental) 
   },
-  // TODO note in specific key
+
+  /**
+   * note in specific scale.
+   */
+  inScales(scales: Scale[]): (note: Note) => boolean {
+    return note => _.some(scales.flatMap(scale => scale.allNotes()), Note.equal(note))
+  }
 } as const

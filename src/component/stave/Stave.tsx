@@ -4,7 +4,7 @@ import * as V from 'vexflow';
 import * as T from '@tonaljs/tonal';
 import { Note } from "@/musicTheory/Note";
 import _ from "lodash";
-import { Box, chakra, Flex, useColorMode } from "@chakra-ui/react";
+import { Box, Flex, useColorMode } from "@chakra-ui/react";
 
 /**
  * 
