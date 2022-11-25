@@ -65,7 +65,7 @@ function getDisplayAccidental(note: Note, keySignature: string): string {
   }
 
   // if this note is in the key scale, no accidental
-  if (Note.equal(targetNote)(note)) return ''
+  if (Note.equal(targetNote.withoutOctave())(note.withoutOctave())) return ''
 
   // if note's original accidental is natural, use natural
   if (note.accidental === '') return 'n'

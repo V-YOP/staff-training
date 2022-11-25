@@ -34,14 +34,3 @@ export class State<T, S> {
     return new State(state => this.runState(action(state)))
   }
 }
-
-// State 来自函数式编程，是其对命令式编程中状态操作的模拟，其行为就像一个无状态的对象中封装了 **一个** 状态
-
-// 比如下面是一个简单的状态操作
-let str = "hello"
-str = str + " world!"
-const upperCase = str.toUpperCase()
-str = upperCase + str;
-
-// 相应操作：
-State.constant({})

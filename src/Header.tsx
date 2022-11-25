@@ -75,8 +75,6 @@ export const Header: FC<Record<string, never>> = () => {
   return (
     <VStack
       width='100%'
-      position='sticky'
-      top='0'
       padding='4'
       boxShadow={'md'}>
       <HeaderContainer maxW={1280}>

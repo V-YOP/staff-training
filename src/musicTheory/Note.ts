@@ -180,6 +180,10 @@ export class Note {
     return new Note(this.letter, this.accidental, this.chroma, octave)
   }
 
+  withoutOctave(): Note {
+    return new Note(this.letter, this.accidental, this.chroma)
+  }
+
   enharmonicNotes(): Note[] {
     return _.sortBy(resultSequence((_.isNil(this.octave) ? 
     ENHARMONIC_NOTES_WITHOUT_OCTAVE[NOTE_WITHOUT_OCT2INDEX[this.name]] : 
