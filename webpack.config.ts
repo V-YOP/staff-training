@@ -3,14 +3,16 @@ import { Configuration, ProgressPlugin } from 'webpack'
 import 'webpack-dev-server';
 import HtmlWebpackPlugin from 'html-webpack-plugin'
 import MiniCssExtractPlugin from  "mini-css-extract-plugin"
-
+import {BundleAnalyzerPlugin} from 'webpack-bundle-analyzer'
 const isProduction = process.env.NODE_ENV === 'production';
 
 // Configuration是Webpack的配置项类型
 const conf: Configuration = {
   mode: isProduction ? 'production' : 'development', // 默认为production模式
   entry: './src/index.tsx', // 入口js文件，可以配置多个entry
-  devtool: isProduction ? void 0 : 'inline-source-map',
+
+  devtool: isProduction ? undefined : 'inline-source-map',
+
   watch: true,
   output: {
     path: path.resolve(__dirname, 'dist'), // 输出路径
@@ -23,7 +25,11 @@ const conf: Configuration = {
     new ProgressPlugin(), // 展示进度
     new MiniCssExtractPlugin({
       filename: '[name].css'
-    })
+    }),
+    isProduction ? new BundleAnalyzerPlugin({
+      analyzerMode: 'static',
+      openAnalyzer: true,
+    }) : () => {},
   ],
   resolve: {
     extensions: [".wasm", ".ts", ".tsx", ".mjs", ".cjs", ".js", ".json" , "css"], // webpack 将识别这些后缀文件为 module

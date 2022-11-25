@@ -8,7 +8,7 @@ const MINOR_SCALES = ['f', 'c', 'g', 'd', 'a', 'e', 'b',       'f#',            
 type MajorKeyLiteral = (typeof MAJOR_SCALES)[number] 
 type MinorKeyLiteral = (typeof MINOR_SCALES)[number]
 
-export type NaturalKeyMode = 'Major' | 'Minor'
+type NaturalKeyMode = 'Major' | 'Minor'
 
 /**
  * Major key and minor key abstraction, ***only used in Key Signature Recognize***
@@ -80,5 +80,10 @@ export class NaturalKey<T extends NaturalKeyMode = NaturalKeyMode> {
   relateMinorKey(): NaturalKey<'Minor'> {
     if (this.isMinorKey()) return this
     return NaturalKey.get(this._majorKeyScale[5], 'Minor').unwrap()
+  }
+
+  scale(): Note[] {
+    if (this.isMajorKey()) return this._majorKeyScale
+    return this._majorKeyScale.slice(5).concat(this._majorKeyScale.slice(0, 5))
   }
 }

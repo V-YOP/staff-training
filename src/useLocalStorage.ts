@@ -5,7 +5,12 @@ const STORAGE_KEY = 'CUSTOM_STORAGE'
 export function useLocalStorage<T>(itemName: string, defaultValue: T): [T, (newValue: T | ((oldValue: T) => T)) => void] {
   const [, plus] = useReducer(c => c + 1, 0)
 
-  const objects = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '{}')
+  let objects: Record<string, T>;
+  try {
+    objects = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '{}')
+  } catch (e) {
+    objects = {}
+  }
   const oldValue = objects[itemName] ?? defaultValue
 
   const setItem : (newValue: T | ((oldValue: T) => T)) => void = valueOrAction => {

@@ -1,10 +1,8 @@
-
 import React, { useEffect, useMemo } from "react";
 import * as V from 'vexflow';
-import * as T from '@tonaljs/tonal';
 import { Note } from "@/musicTheory/Note";
-import _ from "lodash";
 import { Box, Flex, useColorMode } from "@chakra-ui/react";
+import { NaturalKey } from "@/musicTheory/NaturalKey";
 
 /**
  * 
@@ -25,14 +23,51 @@ function getGUID(): string {
  * @returns 
  */
 function getDisplayAccidental(note: Note, keySignature: string): string {
-  // TODO
-  const key = keySignature.toUpperCase() === keySignature ? T.Key.majorKey(keySignature) : T.Key.majorKey(keySignature)
-  const noteName = note.letter + note.accidental
+  // ♮
+  /*
+  TODO APPLY THIS
+  NOTE  KEY  DISPLAY
+         
+  #          #
+  b          b
+  ##         ##
+  bb         bb
+        #    
+  #     #    
+  b     #    
+  ##    #    
+  bb    #    
+        b   
+  #     b    
+  b     b     
+  ##    b    
+  bb    b    
+        ##   
+  #     ##    
+  b     ##   
+  ##    ##    
+  bb    ##     
+        bb   
+  #     bb    
+  b     bb    
+  ##    bb    
+  bb    bb    
+  */
+
+  // LOGIC BELOW IS ERROR
+  const scale = NaturalKey.get(keySignature).unwrap().scale()
+
+  // find the note from scale with the same letter
+  // it must succeed.
+  const targetNote = scale.find(n => n.letter === note.letter)
+  if (!targetNote) {
+    throw new Error('Impossible')
+  }
 
   // if this note is in the key scale, no accidental
-  if (_.some(key.scale, scale => noteName === scale)) return ''
+  if (Note.equal(targetNote)(note)) return ''
 
-  // if note's original accidental is natural, use 
+  // if note's original accidental is natural, use natural
   if (note.accidental === '') return 'n'
   return note.accidental
 }
@@ -76,8 +111,7 @@ export const Stave : React.ForwardRefExoticComponent<StaveParam & React.RefAttri
   const staveNotes = useMemo<V.StaveNote[]>(() => {
     return notes.map(noteOrChord => {
       const notes = Array.isArray(noteOrChord) ? noteOrChord : [noteOrChord]
-
-      const keys = notes.map(note => `${note.letter}${note.accidental}/${note.octave?? 4}`) 
+      const keys = notes.map(note => `${note.letter}${note.accidental}/${note.octave ?? 4}`) 
       return notes.reduce((acc, x, index) => {
         const displayAccidental = getDisplayAccidental(x, keySignature)
         if (displayAccidental !== '') {
@@ -111,6 +145,7 @@ export const Stave : React.ForwardRefExoticComponent<StaveParam & React.RefAttri
       [...div.children].forEach(node => node.remove())
     }
   })
+
   return (
     <Box 
       borderRadius="3xl"

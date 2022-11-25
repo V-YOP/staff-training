@@ -2,6 +2,7 @@
 /* eslint-disable @typescript-eslint/no-empty-interface */
 /* eslint-disable @typescript-eslint/ban-types */
 import { Accidental } from '@/musicTheory/Note';
+import { useToast } from '@chakra-ui/react';
 import _ from 'lodash';
 import { createContext, useContext, useState, useCallback } from 'react';
 import { z } from 'zod';
@@ -64,19 +65,28 @@ export const SettingContext = createContext<{
 const SETTING_KEY = 'SETTING'
 
 export function SettingProvider({children}: {children?: React.ReactNode}) {
+  const toast = useToast()
   const [setting, setSetting] = useState(() => {
     const settingStr = localStorage.getItem(SETTING_KEY)
-    // TODO consider using zod to validate localStorage
     if (_.isNil(settingStr)) {
       return defaultSetting
     }
-    const res = Setting.safeParse(JSON.parse(settingStr))
-    if (!res.success) {
-      alert('从本地缓存解析的设置不合法，初始化设置！')
+
+    try {
+      return Setting.parse(JSON.parse(settingStr))
+    } catch(e) {
+      // Children are not rendered when executing this, so It need to be async
+      setTimeout(() => {
+        toast({
+          description: '缓存中的选项不合法，已重新初始化选项',
+          position: 'top',
+          status: 'info',
+          duration: 2000,
+        })
+      })
       localStorage.removeItem(SETTING_KEY)
       return defaultSetting
     }
-    return res.data
   })
 
   const updateSetting = useCallback((newSubSetting: DeepPartial<Setting>): void => {

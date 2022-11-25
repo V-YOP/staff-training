@@ -4,7 +4,7 @@ import { FormControl, FormLabel, Select, VStack } from "@chakra-ui/react";
 import _ from "lodash";
 
 export const KeyRecognizeSettingComponent = () => {
-  const {setting: {KeyRecognize: {choiceCount,}}, updateSetting, resetSetting} = useSetting()
+  const {setting: {KeyRecognize: {choiceCount,}}, updateSetting, } = useSetting()
 
   const update = useCallback((setting: Partial<Setting['KeyRecognize']>) => {
     updateSetting({KeyRecognize: setting})

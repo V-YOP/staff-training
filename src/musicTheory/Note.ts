@@ -1,5 +1,6 @@
 import { Err, Ok, Result } from '@/monads'
 import { resultSequence } from '@/monads/result'
+import { NaturalKey } from '@/musicTheory/NaturalKey'
 import * as T from '@tonaljs/tonal'
 import _ from 'lodash'
 import { z } from 'zod'
@@ -183,6 +184,11 @@ export class Note {
     return _.sortBy(resultSequence((_.isNil(this.octave) ? 
     ENHARMONIC_NOTES_WITHOUT_OCTAVE[NOTE_WITHOUT_OCT2INDEX[this.name]] : 
     ENHARMONIC_NOTES[NOTE2INDEX[this.name]]).map(Note.get)).unwrap(), note => note.id)
+  }
+
+
+  getTonicSolfa(key: NaturalKey): string {
+    throw new Error('TODO: 根据音阶获取首调唱名')  
   }
 }
 

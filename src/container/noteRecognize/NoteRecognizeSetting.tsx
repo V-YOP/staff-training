@@ -1,12 +1,14 @@
 import { useCallback, useMemo } from "react";
 import { Setting, useSetting } from '@/SettingProvider'
 import { Accidental, Note } from "@/musicTheory/Note";
-import { FormControl, FormHelperText, FormLabel, HStack, Select, Switch, VStack, Text, ButtonGroup, Button, Flex, chakra } from "@chakra-ui/react";
+import { FormControl, FormHelperText, FormLabel, HStack, Select, Switch, VStack, Text, ButtonGroup, Button, Flex, chakra, IconButton } from "@chakra-ui/react";
 import _ from "lodash";
+import {GClef, FClef} from "@/icon";
 
 const allNaturalNote = Note.allNote().filter(note => note.accidental === '')
 export const NoteRecognizeSettingComponent = () => {
-  const {setting: {NoteRecognize: {startNoteInclusive,endNoteInclusive,accidentals,withOctave,choiceCount, sortAnswer,accidentalRelateKey}}, updateSetting, resetSetting} = useSetting()
+  const {setting: {NoteRecognize: {startNoteInclusive,endNoteInclusive,accidentals,withOctave,choiceCount, sortAnswer,accidentalRelateKey, clef}}, updateSetting, resetSetting} = useSetting()
+  
   const update = useCallback((setting: Partial<Setting['NoteRecognize']>) => {
     updateSetting({NoteRecognize: setting})
   }, [updateSetting]);
@@ -41,10 +43,29 @@ export const NoteRecognizeSettingComponent = () => {
   }, [accidentals, update])
 
   return (
-    <VStack gap={4} width={300}>      
+    <VStack gap={4} width="100%">      
       <FormControl display='flex' alignItems='center'>
         <FormLabel margin={0} flexGrow='1'>八度记号</FormLabel> 
-        <Switch onChange={() => update({withOctave: !withOctave})} isChecked={withOctave} defaultChecked={withOctave} />
+        <Switch size='lg' onChange={() => update({withOctave: !withOctave})} isChecked={withOctave} defaultChecked={withOctave} />
+      </FormControl>
+      <FormControl display='flex' alignItems='center'>
+        <FormLabel margin={0} flexGrow='1'>谱号</FormLabel> 
+        <ButtonGroup isAttached minW='10rem'>
+          <IconButton 
+            aria-label='Set clef to treble'
+            icon={<GClef />}
+            colorScheme={clef === 'treble' ? 'blue' : undefined}
+            onClick={() => update({clef: 'treble'})}
+            fontSize={26} 
+            flexGrow={1} />
+          <IconButton 
+            aria-label='Set clef to bass'
+            icon={<FClef />}
+            colorScheme={clef === 'bass' ? 'blue' : undefined}
+            onClick={() => update({clef: 'bass'})}
+            fontSize={20} 
+            flexGrow={1} />
+        </ButtonGroup>
       </FormControl>
       <FormControl isDisabled={!withOctave} display={withOctave ? 'unset': 'none'}>
         <FormLabel>音域范围</FormLabel>
@@ -76,7 +97,7 @@ export const NoteRecognizeSettingComponent = () => {
       <FormControl>
         <Flex alignItems='center'>
           <FormLabel margin={0} flexGrow='1'>变音符号相对调计算</FormLabel> 
-          <Switch onChange={() => update({accidentalRelateKey: !accidentalRelateKey})} isChecked={accidentalRelateKey} defaultChecked={accidentalRelateKey} />
+          <Switch size='lg' onChange={() => update({accidentalRelateKey: !accidentalRelateKey})} isChecked={accidentalRelateKey} defaultChecked={accidentalRelateKey} />
         </Flex>
         <FormHelperText>
           设置变音符号是否相对<chakra.b fontSize='1.1em' display='inline-block'>调内音</chakra.b>计算
@@ -88,8 +109,7 @@ export const NoteRecognizeSettingComponent = () => {
           <Button 
             fontSize={22} 
             flexGrow={1}
-            {...accidentalProps('')}
-            borderLeftRadius={'3xl'}>♮</Button>
+            {...accidentalProps('')}>♮</Button>
           <Button 
             fontSize={22}
             flexGrow={1}
@@ -120,7 +140,7 @@ export const NoteRecognizeSettingComponent = () => {
       </FormControl>
       <FormControl display='flex' alignItems='center'>
         <FormLabel margin={0} flexGrow='1'>选项排序</FormLabel> 
-        <Switch onChange={() => update({sortAnswer: !sortAnswer})} isChecked={sortAnswer} defaultChecked={sortAnswer} />
+        <Switch size='lg' onChange={() => update({sortAnswer: !sortAnswer})} isChecked={sortAnswer} defaultChecked={sortAnswer} />
       </FormControl>
       <Button colorScheme='blue' width='100%' onClick={() => resetSetting('NoteRecognize')}>选项重置</Button>
     </VStack>
