@@ -48,7 +48,7 @@ const defaultSetting: Setting = {
     accidentals: ['', '#', 'b'],
 
     // for movable-doh
-    mode: 'major', 
+    mode: 'ionian', 
     tonic: 'C',
     
     answerDisplayType: 'C',

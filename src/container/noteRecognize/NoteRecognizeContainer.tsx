@@ -29,8 +29,9 @@ export const NoteRecognizeContainer: FC<Record<string,never>> = () => {
     tonic,
     mode }}} = useSetting()
   
+  console.log(tonic, mode)
   const scale = useMemo(() => Scale.get(Note.get(tonic).unwrap(), mode).unwrap(), [tonic, mode])
-
+  console.log(scale)
   const quizGenerator = useMemo<QuizGenerator<Note>>(() => {
     const noteBetweenP = 
       Note.get(startNoteInclusive)
@@ -87,8 +88,8 @@ export const NoteRecognizeContainer: FC<Record<string,never>> = () => {
     <VStack spacing={10} paddingTop={12} >
       <Stave clef={clef} keySignature={displayedKeySignature} notes={[displayedAnswer]} />
       <SingleAnswerGroup onCorrect={() => onAnswer(true)} onIncorrect={() => onAnswer(false)}>
-        {(sortAnswer ? _.sortBy(choices, note => note.id) : choices).map(note => 
-          <Answer key={note.name} label={note.name} correct={Note.equal(note)(answer)}/>)}
+        {(sortAnswer ? _.sortBy(choices, note => note.id) : choices).map((note, index) => 
+          <Answer key={index} label={note.name} correct={Note.equal(note)(answer)}/>)}
       </SingleAnswerGroup>
       <HStack gap={10}>
         <NumberStat label="Correct" number={correctCount} align="center" labelPosition="down" />
@@ -136,7 +137,7 @@ export const NoteRecognizeContainer: FC<Record<string,never>> = () => {
           <DrawerContent>
            <DrawerCloseButton size='lg' />
             <DrawerHeader>Note Recognize Setting</DrawerHeader>
-            <DrawerBody marginTop={5} paddingBottom={12}>
+            <DrawerBody paddingTop={5} paddingBottom={12}>
               <NoteRecognizeSettingComponent />
             </DrawerBody>
         </DrawerContent>

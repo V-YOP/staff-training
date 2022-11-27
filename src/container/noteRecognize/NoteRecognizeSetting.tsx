@@ -9,7 +9,8 @@ import { NaturalKey } from "@/musicTheory/NaturalKey";
 const allNaturalNote = Note.allNote().filter(note => note.accidental === '')
 
 const mode2ValidTonics: Record<string, string[]> = {
-  "chromatic": ["C", "C#", "Db", "D", "Eb", "E", "F", "F#", "Gb", "G", "Ab", "A", "Bb", "B", "Cb"],
+  // "chromatic": ["C", "C#", "Db", "D", "Eb", "E", "F", "F#", "Gb", "G", "Ab", "A", "Bb", "B", "Cb"],
+  "chromatic": ["C"],
   "ionian": ["C", "C#", "Db", "D", "Eb", "E", "F", "F#", "Gb", "G", "Ab", "A", "Bb", "B", "Cb"],
   "aeolian": ["C", "C#", "D", "D#", "Eb", "E", "F", "F#", "G", "G#", "Ab", "A", "A#", "Bb", "B"],
   "harmonic minor": ["C", "C#", "D", "D#", "Eb", "E", "F", "F#", "G", "G#", "Ab", "A", "A#", "Bb", "B"],
@@ -136,8 +137,8 @@ export const NoteRecognizeSettingComponent = () => {
         <FormHelperText>
           <Collapse startingHeight='2rem' in={true}>
             设定练习方式为固定调练习或是首调练习<br />
-            <b>固定调练习</b>：调号限制为C大调，问题音符在选择的音域范围和变音符中随机选定 <br />
-            <b>首调练习</b>：音符从特定主音、特定调的音阶中的音符随机选定，调号根据调的色彩决定，在调式音阶中，ionian，lydian，mixolydian调式使用大调调号，dorian，phrygian，aeolian，locrian调式使用小调调号，当前主音、调式会被展示出来
+            <b>固定调练习</b>: 调号限制为C大调, 问题音符在选择的音域范围和变音符中随机选定 <br />
+            <b>首调练习</b>: 音符从特定主音、特定调的音阶中的音符随机选定, 调号根据调的色彩决定, 在调式音阶中, Ionian, Lydian, Mixolydian调式使用大调调号, Dorian, Phrygian, Aeolian, Locrian调式使用小调调号 <br />
           </Collapse>
         </FormHelperText>
       </FormControl>
@@ -183,7 +184,7 @@ export const NoteRecognizeSettingComponent = () => {
                     borderRadius={'3xl'}
                     value={mode}
                     onChange={({ target: { value } }) => update({ mode: value, tonic: 'C' })}>
-                    {Object.keys(mode2ValidTonics).map(mode => <option key={mode}> {_.startCase(mode)} </option>)}
+                    {Object.keys(mode2ValidTonics).map(mode => <option key={mode} label={_.startCase(mode)}>{mode}</option>)}
                   </Select>
               </FormControl>
               <FormControl flexGrow={1} flexBasis='0'>

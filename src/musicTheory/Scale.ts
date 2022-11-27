@@ -51,6 +51,12 @@ export class Scale {
   }
 
   static get(tonic: Note, mode: string): Result<Scale> {
+    if (mode === 'chromatic') {
+      const asc = _.sortBy(Note.allNote(false).filter(note => note.accidental.length <= 1), note => note.id);
+      const desc = [...asc].reverse()
+      return Ok(new Scale(Note.get('C').unwrap(), mode, 'Major', asc, desc))
+    }
+
     const res = T.Scale.get(`${tonic.name} ${mode}`)
 
     if (!Modes.some(mode => mode === res.type)) {
