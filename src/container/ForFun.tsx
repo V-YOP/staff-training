@@ -29,8 +29,7 @@ export const ForFun = () => {
   }, [])
   return (
     <VStack marginTop={20}>
-
-    <Heading>{title + '.'.repeat(dotNum)}</Heading>
+      <Heading>{'无限期推迟ing' + '.'.repeat(dotNum)}</Heading>
     </VStack>
   )
 }

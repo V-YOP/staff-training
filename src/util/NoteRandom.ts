@@ -31,6 +31,6 @@ export const prefabNotePredicate = {
    * note in specific scale.
    */
   inScales(scales: Scale[]): (note: Note) => boolean {
-    return note => _.some(scales.flatMap(scale => scale.allNotes()), Note.equal(note))
+    return note => _.some(scales.flatMap(scale => scale.allNotes), n => Note.equal(note.withoutOctave())(n.withoutOctave()))
   }
 } as const

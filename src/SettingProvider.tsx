@@ -9,16 +9,25 @@ import { z } from 'zod';
 
 const Setting = z.object({
   NoteRecognize: z.object({
+    withOctave: z.boolean(),
+    clef: z.literal('treble').or(z.literal('bass')),
     startNoteInclusive: z.string(),
     endNoteInclusive: z.string(),
-    accidentalRelateKey: z.boolean(),
+    dohType: z.literal('fixed-doh').or(z.literal('movable-doh')),
+
+    // for fixed-doh
     accidentals: Accidental.array(),
-    choiceCount: z.number().positive(),
-    withOctave: z.boolean(),
+
+    // for movable-doh
+    mode: z.string(), // select mode first and then tonic
+    tonic: z.string(),
+
+    answerDisplayType: z.literal('C').or(z.literal('1')).or(z.literal('Dol')).or(z.literal('I')),
     sortAnswer: z.boolean(),
-    answerType: z.literal('input').or(z.literal('choice')),
-    clef: z.literal('treble').or(z.literal('bass')),
+    choiceCount: z.number().positive(),
+    choiceType: z.literal('input').or(z.literal('choice')),
   }),
+
   KeyRecognize: z.object({
     choiceCount: z.number().positive()
   })
@@ -28,15 +37,24 @@ export type Setting = z.infer<typeof Setting>
 
 const defaultSetting: Setting = {
   NoteRecognize: {
+    withOctave: true,
+    clef: 'treble',
     startNoteInclusive: 'E3',
     endNoteInclusive: 'D6',
-    accidentalRelateKey: true,
+
+    dohType: 'movable-doh',
+
+    // for fixed-doh
     accidentals: ['', '#', 'b'],
-    choiceCount: 6,
-    withOctave: true,
+
+    // for movable-doh
+    mode: 'major', 
+    tonic: 'C',
+    
+    answerDisplayType: 'C',
     sortAnswer: false,
-    answerType: 'choice',
-    clef: 'treble',
+    choiceCount: 4,
+    choiceType: 'choice',
   },
   KeyRecognize: {
     choiceCount: 6
@@ -58,9 +76,9 @@ type DeepPartialObject<T> = {
 
 export const SettingContext = createContext<{
   setting: Setting, 
-  updateSetting: (newSubSetting: DeepPartial<Setting>) => void
-  resetSetting: (moduleName: keyof Setting) => void
-}>( {setting: defaultSetting, updateSetting: () => {}, resetSetting(){} })
+  updateSetting(newSubSetting: DeepPartial<Setting>): void,
+  resetSetting(moduleName: keyof Setting): void
+}>( {setting: defaultSetting, updateSetting() {}, resetSetting(){} })
 
 const SETTING_KEY = 'SETTING'
 

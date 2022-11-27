@@ -6,32 +6,60 @@ import { noteQG, prefabNotePredicate } from "@/util/NoteRandom";
 import { FC, RefObject, useCallback, useMemo, useReducer, useRef, useState } from "react";
 import { useSetting } from '@/SettingProvider'
 import { Note } from "@/musicTheory/Note";
-import { Button, Drawer, DrawerBody, DrawerCloseButton, DrawerContent, DrawerFooter, DrawerHeader, DrawerOverlay, Flex, HStack, IconButton, Input, useDisclosure, useMediaQuery, VStack } from "@chakra-ui/react";
+import { Button, Drawer, DrawerBody, DrawerCloseButton, DrawerContent, DrawerHeader, DrawerOverlay, Flex, HStack, IconButton, useDisclosure, VStack } from "@chakra-ui/react";
 import _ from "lodash";
 import { NoteRecognizeSettingComponent } from "@/container/noteRecognize/NoteRecognizeSetting";
 import { SettingsIcon } from "@chakra-ui/icons";
 import { useMQ } from "@/useMQ";
+import { Scale } from "@/musicTheory/Scale";
+import { QuizGenerator } from "@/util/QuizGenerator";
 
 export const NoteRecognizeContainer: FC<Record<string,never>> = () => {
   const {isMobile, isLaptop, isPC} = useMQ()
 
-  const {setting: {NoteRecognize: {startNoteInclusive,endNoteInclusive,choiceCount,accidentals,withOctave,sortAnswer, clef}}} = useSetting()
+  const {setting: {NoteRecognize: { 
+    startNoteInclusive,
+    endNoteInclusive,
+    choiceCount,
+    accidentals,
+    withOctave,
+    sortAnswer,
+    clef,
+    dohType,
+    tonic,
+    mode }}} = useSetting()
   
-  const quizGenerator = useMemo(() => noteQG(choiceCount, andP(
-    withOctave ? 
-    Note.get(startNoteInclusive).andThen(startNote =>
-      Note.get(endNoteInclusive).map(endNote => 
-        prefabNotePredicate.noteBetween(startNote, endNote)))
-        .unwrap() : _.constant(true),
-    prefabNotePredicate.accidentalIn(accidentals)), withOctave), 
-    [accidentals, startNoteInclusive, endNoteInclusive, withOctave, choiceCount])
+  const scale = useMemo(() => Scale.get(Note.get(tonic).unwrap(), mode).unwrap(), [tonic, mode])
+
+  const quizGenerator = useMemo<QuizGenerator<Note>>(() => {
+    const noteBetweenP = 
+      Note.get(startNoteInclusive)
+        .andThen(startNote =>
+          Note.get(endNoteInclusive).map(endNote => prefabNotePredicate.noteBetween(startNote, endNote)))
+        .unwrap();
+    const accidentalInP = prefabNotePredicate.accidentalIn(accidentals);
+
+    const inScaleP = prefabNotePredicate.inScales([scale])
+    switch (dohType) {
+      case 'fixed-doh': 
+        return noteQG(choiceCount, andP(
+          withOctave ? noteBetweenP : _.constant(true),
+          accidentalInP
+        ), withOctave)
+
+      case 'movable-doh':
+        return noteQG(choiceCount, andP(
+          inScaleP,
+          withOctave ? noteBetweenP : _.constant(true),
+        ), withOctave)
+    }
+  }, [accidentals, startNoteInclusive, endNoteInclusive, withOctave, choiceCount, dohType, scale])
 
   const [seed, setSeed] = useState(() => Math.random())
   const [[answer, choices], nextSeed] = useMemo(() => quizGenerator.runState(seed), [seed, quizGenerator])
   
   const [correctCount, plusCorrectCount] = useReducer(s => s + 1, 0)
   const [incorrectCount, plusIncorrectCount] = useReducer(s => s + 1, 0)
-
   
   const onAnswer = useCallback((correct: boolean) => {
     correct ? plusCorrectCount() : plusIncorrectCount();
@@ -44,15 +72,22 @@ export const NoteRecognizeContainer: FC<Record<string,never>> = () => {
     return answer.withOctave(3 + Math.floor(Math.random() * 3))
   }, [withOctave, answer])
 
+  const displayedKeySignature = useMemo(() => {
+    switch(dohType) {
+      case 'fixed-doh': return 'C'
+      case 'movable-doh': 
+        return scale.getRelateNaturalKey().unwrap().relateMajorKey().name
+    }
+  }, [dohType, scale])
 
   const { isOpen, onClose, onOpen } = useDisclosure()
   const settingBtnRef = useRef() as RefObject <HTMLButtonElement>
 
   return (
     <VStack spacing={10} paddingTop={12} >
-      <Stave clef={clef} keySignature="C" notes={[displayedAnswer]} />
+      <Stave clef={clef} keySignature={displayedKeySignature} notes={[displayedAnswer]} />
       <SingleAnswerGroup onCorrect={() => onAnswer(true)} onIncorrect={() => onAnswer(false)}>
-        {(sortAnswer ? _.sortBy(choices, note => note.id) : choices).map((note) => 
+        {(sortAnswer ? _.sortBy(choices, note => note.id) : choices).map(note => 
           <Answer key={note.name} label={note.name} correct={Note.equal(note)(answer)}/>)}
       </SingleAnswerGroup>
       <HStack gap={10}>
@@ -101,7 +136,7 @@ export const NoteRecognizeContainer: FC<Record<string,never>> = () => {
           <DrawerContent>
            <DrawerCloseButton size='lg' />
             <DrawerHeader>Note Recognize Setting</DrawerHeader>
-            <DrawerBody marginTop={10}>
+            <DrawerBody marginTop={5} paddingBottom={12}>
               <NoteRecognizeSettingComponent />
             </DrawerBody>
         </DrawerContent>

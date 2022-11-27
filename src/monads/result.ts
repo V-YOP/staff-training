@@ -12,7 +12,7 @@ export interface Match<T, E, U> {
   err: (val: E) => U;
 }
 
-export interface Result<T, E> {
+export interface Result<T, E = Error> {
   type: symbol;
   isOk(): boolean;
   isErr(): boolean;

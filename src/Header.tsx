@@ -1,6 +1,6 @@
 import { useMQ } from "@/useMQ";
 import { CloseIcon, MoonIcon, SunIcon, HamburgerIcon } from "@chakra-ui/icons";
-import { Box, Button, chakra, Collapse, Heading, IconButton, useBoolean, useColorMode, VStack } from "@chakra-ui/react";
+import { Box, Button, chakra, Collapse, Flex, Heading, IconButton, Switch, useBoolean, useColorMode, VStack } from "@chakra-ui/react";
 import React, { FC } from "react";
 import { Route, useRoute } from './RouteProvider';
 
@@ -124,6 +124,13 @@ export const Header: FC<Record<string, never>> = () => {
           <Link width={"100%"} onClick={closeMenu} to='KEY_RECOGNIZE'>KEY</Link>
           <Link width={"100%"} onClick={closeMenu} to='CHORD_RECOGNIZE'>CHORD</Link>
           <Link width={"100%"} onClick={closeMenu} to='INTERVAL_RECOGNIZE'>INTERVAL</Link>
+          <IconButton width={"100%"}
+                aria-label='Toggle Color Mode'
+                variant='ghost'
+                icon={colorMode === 'light' ?
+                  <MoonIcon fontSize='2xl' /> :
+                  <SunIcon fontSize='2xl' />}
+                onClick={toggleColorMode} />
         </VStack>
       </Collapse>
     </VStack>

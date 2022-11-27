@@ -1,12 +1,14 @@
 import { Note } from './Note';
 import * as T from '@tonaljs/tonal';
 import { Ok, Result, resultSequence, Err } from '@/monads/result';
+import { _ } from 'ajv';
 
-const MAJOR_SCALES = ['F', 'C', 'G', 'D', 'A', 'E', 'B', 'Gb', 'F#', 'Cb', 'Db', 'C#', 'Ab', 'Eb',             'Bb'] as const
-const MINOR_SCALES = ['f', 'c', 'g', 'd', 'a', 'e', 'b',       'f#',             'c#', 'g#', 'eb', 'd#',       'bb'] as const
 
-type MajorKeyLiteral = (typeof MAJOR_SCALES)[number] 
-type MinorKeyLiteral = (typeof MINOR_SCALES)[number]
+const MAJOR_KEYS = ['F', 'C', 'G', 'D', 'A', 'E', 'B', 'Cb', 'Gb', 'F#', 'Db', 'C#', 'Ab', 'Eb', 'Bb'] as const
+const MINOR_KEYS = ['f', 'c', 'g', 'd', 'a', 'e', 'b', 'f#', 'c#', 'g#', 'ab', 'd#', 'eb', 'a#', 'bb'] as const
+
+type MajorKeyLiteral = (typeof MAJOR_KEYS)[number] 
+type MinorKeyLiteral = (typeof MINOR_KEYS)[number]
 
 type NaturalKeyMode = 'Major' | 'Minor'
 
@@ -20,7 +22,7 @@ export class NaturalKey<T extends NaturalKeyMode = NaturalKeyMode> {
     /**
      * major key scale, used for calculate relate Key
      */
-    private _majorKeyScale: Note[]
+    private _scale: Note[]
   ){}
   get tonic() {return this._tonic}
   get mode() {return this._mode}
@@ -34,7 +36,7 @@ export class NaturalKey<T extends NaturalKeyMode = NaturalKeyMode> {
    * @returns 
    */
   static allMajorKey(): NaturalKey<'Major'>[] {
-    return resultSequence(MAJOR_SCALES.map(NaturalKey.get)).map(keys => keys.map(key => key.relateMajorKey())).unwrap()
+    return resultSequence(MAJOR_KEYS.map(NaturalKey.get)).map(keys => keys.map(key => key.relateMajorKey())).unwrap()
   }
 
   /**
@@ -42,7 +44,7 @@ export class NaturalKey<T extends NaturalKeyMode = NaturalKeyMode> {
    * @returns 
    */
   static allMinorKey(): NaturalKey<'Minor'>[] {
-    return resultSequence(MINOR_SCALES.map(NaturalKey.get)).map(keys => keys.map(key => key.relateMinorKey())).unwrap()
+    return resultSequence(MINOR_KEYS.map(NaturalKey.get)).map(keys => keys.map(key => key.relateMinorKey())).unwrap()
   }
 
   static get(keyLiteral: MajorKeyLiteral): Result<NaturalKey<'Major'>, Error>;
@@ -58,11 +60,16 @@ export class NaturalKey<T extends NaturalKeyMode = NaturalKeyMode> {
     }
 
     const tonic = Note.get(keyLiteral).unwrap()
-    const majorKeyScale = resultSequence(T.Key.majorKey(keyLiteral).scale.map(Note.get)).unwrap()
     if (keyLiteral[0] === keyLiteral[0].toUpperCase()) {
-      return Ok(new NaturalKey(tonic, 'Major', majorKeyScale) as NaturalKey<T>)
+      if (!MAJOR_KEYS.some(scale => keyLiteral === scale)) {
+        return Err(new Error(`Key '${keyLiteral}' is illegal.`))
+      }
+      return Ok(new NaturalKey(tonic, 'Major', resultSequence(T.Key.majorKey(keyLiteral).scale.map(Note.get)).unwrap()) as NaturalKey<T>)
     } else {
-      return Ok(new NaturalKey(tonic, 'Minor', majorKeyScale) as NaturalKey<T>)
+      if (!MINOR_KEYS.some(scale => keyLiteral === scale)) {
+        return Err(new Error(`Key '${keyLiteral}' is illegal.`))
+      }
+      return Ok(new NaturalKey(tonic, 'Minor', resultSequence(T.Key.minorKey(keyLiteral).natural.scale.map(Note.get)).unwrap()) as NaturalKey<T>)
     }
   }
 
@@ -75,15 +82,14 @@ export class NaturalKey<T extends NaturalKeyMode = NaturalKeyMode> {
   
   relateMajorKey(): NaturalKey<'Major'> {
     if (this.isMajorKey()) return this
-    return NaturalKey.get(this._majorKeyScale[2], 'Major').unwrap()
+    return NaturalKey.get(this._scale[2], 'Major').unwrap()
   }
   relateMinorKey(): NaturalKey<'Minor'> {
     if (this.isMinorKey()) return this
-    return NaturalKey.get(this._majorKeyScale[5], 'Minor').unwrap()
+    return NaturalKey.get(this._scale[5], 'Minor').unwrap()
   }
 
   scale(): Note[] {
-    if (this.isMajorKey()) return this._majorKeyScale
-    return this._majorKeyScale.slice(5).concat(this._majorKeyScale.slice(0, 5))
+    return this._scale
   }
 }

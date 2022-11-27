@@ -1,6 +1,8 @@
 import { Err, Ok, Result } from '@/monads'
 import { resultSequence } from '@/monads/result'
 import { NaturalKey } from '@/musicTheory/NaturalKey'
+import { Scale } from '@/musicTheory/Scale'
+import { Setting } from '@/SettingProvider'
 import * as T from '@tonaljs/tonal'
 import _ from 'lodash'
 import { z } from 'zod'
@@ -189,41 +191,4 @@ export class Note {
     ENHARMONIC_NOTES_WITHOUT_OCTAVE[NOTE_WITHOUT_OCT2INDEX[this.name]] : 
     ENHARMONIC_NOTES[NOTE2INDEX[this.name]]).map(Note.get)).unwrap(), note => note.id)
   }
-
-
-  getTonicSolfa(key: NaturalKey): string {
-    throw new Error('TODO: 根据音阶获取首调唱名')  
-  }
 }
-
-// function getSemitoneByNote(note: string): number {
-//   const semitone = NOTE2SEMITONE[note]
-//   if (semitone == null) {
-//     throw new Error(`note ${ note } is illegal`)
-//   }
-//   return semitone
-// }
-
-// function getNotesBySemitones(semitone: number): string[] {
-//   const res = SEMITONE2NOTES[semitone]
-//   if (res == null) {
-//     throw new Error(`note semitone ${ semitone } is illegal`)
-//   }
-//   return res
-// }
-
-// function getEnharmonicNotes(note: string): string[] {
-//   return getNotesBySemitones(getSemitoneByNote(note))
-// }
-
-// export function notesBetween(startNoteInclusive: string, endNoteInclusive: string): string[] {
-//   const s1 = getSemitoneByNote(startNoteInclusive)
-//   const s2 = getSemitoneByNote(endNoteInclusive)
-//   const lower = R.min(s1, s2)
-//   const higher = R.max(s1, s2)
-//   return R.chain(getNotesBySemitones)(R.range(lower, higher))
-// }
-
-// export function getAllNotes(): string[] {
-//   return Object.values(SEMITONE2NOTES).flatMap(R.identity)
-// }

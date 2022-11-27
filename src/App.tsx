@@ -8,19 +8,9 @@ import { ChakraProvider } from "@chakra-ui/react";
 import Theme from "@/Theme";
 import { KeyRecognizeContainer } from "@/container/keyRecognize/KeyRecognizeContainer";
 import { AboutContainer } from "@/container/about/AboutContainer";
-import { TonicSolfaRecognizeContainer } from "@/container/tonicSolfaRecognize/TonicSolfaRecognizeContainer";
+import { TEST } from "@/container/tonicSolfaRecognize/TonicSolfaRecognizeContainer";
 import { ChordRecognizeContainer } from "@/container/chordRecognize/ChordRecognizeContainer";
 import { InternalRecognizeContainer } from "@/container/internalRecognize/InternalRecognizeContainer";
-
-/*
-  'KEY_RECOGNIZE',
-  'TONIC_SOLFA_RECOGNIZE',
-  'CHORD_RECOGNIZE',
-  'INTERVAL_RECOGNIZE',
-  'NOT_IMPLEMENTED',
-  'ABOUT',
-*/
-
 
 export default function App() {
   return (
@@ -31,7 +21,7 @@ export default function App() {
           <Switch >
             <Case route="NOTE_RECOGNIZE"><NoteRecognizeContainer /></Case>
             <Case route='KEY_RECOGNIZE'><KeyRecognizeContainer /></Case>
-            <Case route='TONIC_SOLFA_RECOGNIZE'><TonicSolfaRecognizeContainer /></Case>
+            <Case route='TONIC_SOLFA_RECOGNIZE'><TEST /></Case>
             <Case route='CHORD_RECOGNIZE'><ChordRecognizeContainer /></Case>
             <Case route='INTERVAL_RECOGNIZE'><InternalRecognizeContainer /></Case>
             <Case route='ABOUT'><AboutContainer /></Case>
