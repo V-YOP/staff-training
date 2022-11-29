@@ -7,11 +7,6 @@ import _ from "lodash";
 import { Scale } from "@/musicTheory/Scale";
 import { QuizGenerator } from "@/util/QuizGenerator";
 
-
-
-
-
-
 // console.log(
 //   _(Note.allNote(false).flatMap(note => allModes.map(mode => Scale.get(note, mode))))
 //     .filter(res => res.isOk())
@@ -39,59 +34,59 @@ const mode2ValidTonics = {
 
 
 export const TEST: FC<Record<string,never>> = () => {
+  return <></>
+  // const withOctave = false
 
-  const withOctave = false
+  // const quizGenerator = useMemo<QuizGenerator<Note>>(() => {
+  //   return noteQG(4, _.constant(true), true)
+  // }, [])
 
-  const quizGenerator = useMemo<QuizGenerator<Note>>(() => {
-    return noteQG(4, _.constant(true), true)
-  }, [])
+  // const [seed, setSeed] = useState(() => Math.random())
+  // const [[answer, choices], nextSeed] = useMemo(() => quizGenerator.runState(seed), [seed, quizGenerator])
 
-  const [seed, setSeed] = useState(() => Math.random())
-  const [[answer, choices], nextSeed] = useMemo(() => quizGenerator.runState(seed), [seed, quizGenerator])
-
-  const [mode, setMode] = useState<keyof typeof mode2ValidTonics>('major')
-  const [tonic, setTonic] = useState<string>('C')
-  const [note, setNote] = useState(Note.get(tonic).unwrap())
+  // const [mode, setMode] = useState<keyof typeof mode2ValidTonics>('major')
+  // const [tonic, setTonic] = useState<string>('C')
+  // const [note, setNote] = useState(Note.get(tonic).unwrap())
   
-  const modeChange = useCallback<(mode: keyof typeof mode2ValidTonics) => void>(mode => {
-    setMode(mode)
-    if (!mode2ValidTonics[mode].some(t => t === tonic)) {
-      setTonic('C')
-      setNote(Note.get('C').unwrap())
-    }
-  }, [tonic]);
+  // const modeChange = useCallback<(mode: keyof typeof mode2ValidTonics) => void>(mode => {
+  //   setMode(mode)
+  //   if (!mode2ValidTonics[mode].some(t => t === tonic)) {
+  //     setTonic('C')
+  //     setNote(Note.get('C').unwrap())
+  //   }
+  // }, [tonic]);
 
-  const tonicChange = useCallback<(mode: string) => void>(tonic => {
-    setTonic(tonic)
-    setNote(Note.get(tonic).unwrap())
-  }, []);
+  // const tonicChange = useCallback<(mode: string) => void>(tonic => {
+  //   setTonic(tonic)
+  //   setNote(Note.get(tonic).unwrap())
+  // }, []);
 
-  const scale = useMemo(() => {
-    return Scale.get(Note.get(tonic).unwrap(), mode).unwrap()
-  }, [tonic, mode])
+  // const scale = useMemo(() => {
+  //   return Scale.get(Note.get(tonic).unwrap(), mode).unwrap()
+  // }, [tonic, mode])
   
-  // if without octave, use a random octave number in [3, 5]
-  const displayedAnswer = useMemo(() => {
-    if (withOctave) return answer;
-    return answer.withOctave(3 + Math.floor(Math.random() * 3))
-  }, [withOctave, answer])
+  // // if without octave, use a random octave number in [3, 5]
+  // const displayedAnswer = useMemo(() => {
+  //   if (withOctave) return answer;
+  //   return answer.withOctave(3 + Math.floor(Math.random() * 3))
+  // }, [withOctave, answer])
   
 
-  return (
-    <VStack spacing={10} paddingTop={12} >
-      <Stave keySignature={scale.getRelateNaturalKey().unwrap().relateMajorKey().name} notes={[note]} />
-      <VStack>
-        <Select value={mode} onChange={({target: {value}}) => modeChange(value as keyof typeof mode2ValidTonics)}>
-          {Object.keys(mode2ValidTonics).map(mode => <option key={mode} value={mode}>{mode}</option>)}
-        </Select>
-        <Select value={tonic}  onChange={({target: {value}}) => tonicChange(value)}>
-          {mode2ValidTonics[mode].map(tonic => <option key={tonic} value={tonic}>{tonic}</option>)}
-        </Select>
-        <Select value={note.name}  onChange={({target: {value}}) => setNote(Note.get(value).unwrap())}>
-          {Note.allNote(withOctave)
-          .filter(prefabNotePredicate.inScales([scale])).map(note => <option key={note.id} value={note.name}>{note.name}</option>)}
-        </Select>
-      </VStack>
-    </VStack>
-  )
+  // return (
+  //   <VStack spacing={10} paddingTop={12} >
+  //     <Stave keySignature={scale.getRelateNaturalKey().unwrap().relateMajorKey().name} notes={[note]} />
+  //     <VStack>
+  //       <Select value={mode} onChange={({target: {value}}) => modeChange(value as keyof typeof mode2ValidTonics)}>
+  //         {Object.keys(mode2ValidTonics).map(mode => <option key={mode} value={mode}>{mode}</option>)}
+  //       </Select>
+  //       <Select value={tonic}  onChange={({target: {value}}) => tonicChange(value)}>
+  //         {mode2ValidTonics[mode].map(tonic => <option key={tonic} value={tonic}>{tonic}</option>)}
+  //       </Select>
+  //       <Select value={note.name}  onChange={({target: {value}}) => setNote(Note.get(value).unwrap())}>
+  //         {Note.allNote(withOctave)
+  //         .filter(prefabNotePredicate.inScales([scale])).map(note => <option key={note.id} value={note.name}>{note.name}</option>)}
+  //       </Select>
+  //     </VStack>
+  //   </VStack>
+  // )
 }

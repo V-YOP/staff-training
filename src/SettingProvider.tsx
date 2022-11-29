@@ -1,7 +1,5 @@
-/* eslint-disable @typescript-eslint/no-empty-function */
-/* eslint-disable @typescript-eslint/no-empty-interface */
-/* eslint-disable @typescript-eslint/ban-types */
 import { Accidental } from '@/musicTheory/Note';
+import { DeepPartial } from '@/util/TypeUtil';
 import { useToast } from '@chakra-ui/react';
 import _ from 'lodash';
 import { createContext, useContext, useState, useCallback } from 'react';
@@ -22,7 +20,7 @@ const Setting = z.object({
     mode: z.string(), // select mode first and then tonic
     tonic: z.string(),
 
-    answerDisplayType: z.literal('C').or(z.literal('1')).or(z.literal('Dol')).or(z.literal('I')),
+    answerDisplayType: z.literal('C').or(z.literal('1')).or(z.literal('Do')),
     sortAnswer: z.boolean(),
     choiceCount: z.number().positive(),
     choiceType: z.literal('input').or(z.literal('choice')),
@@ -59,19 +57,6 @@ const defaultSetting: Setting = {
   KeyRecognize: {
     choiceCount: 6
   }
-}
-
-type DeepPartial<T> = T extends Function
-  ? T
-  : T extends Array<infer InferredArrayMember>
-    ? DeepPartialArray<InferredArrayMember>
-    : T extends object
-      ? DeepPartialObject<T>
-        : T | undefined;
-interface DeepPartialArray<T> extends Array<DeepPartial<T>> {}
-
-type DeepPartialObject<T> = {
-  [Key in keyof T]?: DeepPartial<T[Key]>
 }
 
 export const SettingContext = createContext<{

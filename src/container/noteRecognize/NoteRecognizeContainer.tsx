@@ -1,7 +1,7 @@
 import { SingleAnswerGroup, Answer } from "@/component/answer";
 import { NumberStat } from "@/component/stat";
 import { Stave } from "@/component/stave/Stave";
-import { andP } from "@/util/FunctionUtil";
+import { andP, compose } from "@/util/FunctionUtil";
 import { noteQG, prefabNotePredicate } from "@/util/NoteRandom";
 import { FC, RefObject, useCallback, useMemo, useReducer, useRef, useState } from "react";
 import { useSetting } from '@/SettingProvider'
@@ -27,7 +27,8 @@ export const NoteRecognizeContainer: FC<Record<string,never>> = () => {
     clef,
     dohType,
     tonic,
-    mode }}} = useSetting()
+    mode,
+    answerDisplayType }}} = useSetting()
   
   console.log(tonic, mode)
   const scale = useMemo(() => Scale.get(Note.get(tonic).unwrap(), mode).unwrap(), [tonic, mode])
@@ -41,20 +42,22 @@ export const NoteRecognizeContainer: FC<Record<string,never>> = () => {
     const accidentalInP = prefabNotePredicate.accidentalIn(accidentals);
 
     const inScaleP = prefabNotePredicate.inScales([scale])
+    const uniqByP = prefabNotePredicate.uniqBy(n => scale.getNoteDisplayName(n, answerDisplayType).unwrap())
     switch (dohType) {
       case 'fixed-doh': 
-        return noteQG(choiceCount, andP(
-          withOctave ? noteBetweenP : _.constant(true),
-          accidentalInP
-        ), withOctave)
+        return noteQG(choiceCount, compose(
+            accidentalInP,
+            withOctave ? noteBetweenP : x => x
+          ), withOctave)
 
       case 'movable-doh':
-        return noteQG(choiceCount, andP(
+        return noteQG(choiceCount, compose(
+          answerDisplayType !== 'C' ? uniqByP : x => x,
           inScaleP,
-          withOctave ? noteBetweenP : _.constant(true),
+          withOctave ? noteBetweenP : x => x,
         ), withOctave)
     }
-  }, [accidentals, startNoteInclusive, endNoteInclusive, withOctave, choiceCount, dohType, scale])
+  }, [accidentals, startNoteInclusive, endNoteInclusive, withOctave, choiceCount, dohType, scale, answerDisplayType])
 
   const [seed, setSeed] = useState(() => Math.random())
   const [[answer, choices], nextSeed] = useMemo(() => quizGenerator.runState(seed), [seed, quizGenerator])
@@ -84,12 +87,21 @@ export const NoteRecognizeContainer: FC<Record<string,never>> = () => {
   const { isOpen, onClose, onOpen } = useDisclosure()
   const settingBtnRef = useRef() as RefObject <HTMLButtonElement>
 
+  const sortedAnswer = useMemo(() => {
+    if (!sortAnswer) return choices;
+    if (dohType === 'fixed-doh' || answerDisplayType === 'C') return _.sortBy(choices, note => note.id)
+    console.log( _.sortBy(choices, note => note.withoutOctave().chroma + 12 - Note.get(tonic).unwrap().chroma))    
+    return _.sortBy(choices, note => note.withoutOctave().chroma >= Note.get(tonic).unwrap().chroma ? note.withoutOctave().chroma : note.withoutOctave().chroma + 100) 
+    
+
+  }, [answerDisplayType, dohType, sortAnswer, tonic,choices])
+
   return (
     <VStack spacing={10} paddingTop={12} >
       <Stave clef={clef} keySignature={displayedKeySignature} notes={[displayedAnswer]} />
       <SingleAnswerGroup onCorrect={() => onAnswer(true)} onIncorrect={() => onAnswer(false)}>
-        {(sortAnswer ? _.sortBy(choices, note => note.id) : choices).map((note, index) => 
-          <Answer key={index} label={note.name} correct={Note.equal(note)(answer)}/>)}
+        {sortedAnswer.map((note, index) => 
+          <Answer key={index} label={dohType === 'fixed-doh' ? note.name : scale.getNoteDisplayName(note, answerDisplayType).unwrapOrElse(err => {throw err;})} correct={Note.equal(note)(answer)}/>)}
       </SingleAnswerGroup>
       <HStack gap={10}>
         <NumberStat label="Correct" number={correctCount} align="center" labelPosition="down" />

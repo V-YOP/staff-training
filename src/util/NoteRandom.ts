@@ -3,8 +3,8 @@ import { Accidental, Note } from '@/musicTheory/Note';
 import _ from 'lodash'
 import { Scale } from '@/musicTheory/Scale';
 
-export function noteQG(choiceCount: number, filter: (note: Note) => boolean, withOctave = true): QuizGenerator<Note> {
-  const validNotes = Note.allNote(withOctave).filter(filter)
+export function noteQG(choiceCount: number, filter: (note: Note[]) => Note[], withOctave = true): QuizGenerator<Note> {
+  const validNotes = filter(Note.allNote(withOctave))
   return mkQuizGenerator(choiceCount, validNotes)
 }
 
@@ -17,20 +17,23 @@ export const prefabNotePredicate = {
    * @param endNote 
    * @returns 
    */
-  noteBetween(startNote: Note, endNote: Note): (note: Note) => boolean {
-    if (_.isNil(startNote.octave) || _.isNil(endNote.octave)) return _.constant(true)
+  noteBetween(startNote: Note, endNote: Note): (notes: Note[]) => Note[] {
+    if (_.isNil(startNote.octave) || _.isNil(endNote.octave)) return _.identity
     const validNotes = Note.between(startNote, endNote).unwrap()
-    return note => _.some(validNotes, Note.equal(note))
+    return notes => notes.filter(note => _.some(validNotes, Note.equal(note)))
   },
 
-  accidentalIn(accidentals: Accidental[]): (note: Note) => boolean {
-    return note => _.some(accidentals, acc => acc === note.accidental) 
+  accidentalIn(accidentals: Accidental[]): (notes: Note[]) => Note[] {
+    return notes => notes.filter(note => _.some(accidentals, acc => acc === note.accidental) )
   },
-
   /**
    * note in specific scale.
    */
-  inScales(scales: Scale[]): (note: Note) => boolean {
-    return note => _.some(scales.flatMap(scale => scale.allNotes), n => Note.equal(note.withoutOctave())(n.withoutOctave()))
+  inScales(scales: Scale[]): (notes: Note[]) => Note[] {
+    return notes => notes.filter(note => _.some(scales.flatMap(scale => scale.allNotes), n => Note.equal(note.withoutOctave())(n.withoutOctave())))
+  },
+
+  uniqBy(fn: (note: Note) => string | number | symbol): (notes: Note[]) => Note[] {
+    return notes => _.uniqBy(notes, fn)
   }
 } as const

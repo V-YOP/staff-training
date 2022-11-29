@@ -108,11 +108,42 @@ export class Scale {
   }
 
   getNoteDisplayName(note: Note, type: Setting['NoteRecognize']['answerDisplayType']): Result<string> {
+    // get The interval from tonic to the target note and map it to display name
+
+    /**
+     * 上行do、di、rei、ri、mi、fa、fi、so、si、la、li、xi、do。
+     * 下行do、xi、xe、la、le、so、se、fa、mi、me、rei、re、do。
+     */
+    const interval = T.Interval.distance(this.tonic.withoutOctave().name, note.withoutOctave().name)
+    console.log(interval)
+    const interval2DisplayName: Record<string, [string, string]> = {
+      '1P': ['1', 'Do'],
+      '2M': ['2', 'Re'],
+      '3M': ['3', 'Mi'],
+      '4P': ['4', 'Fa'],
+      '5P': ['5', 'Sol'],
+      '6M': ['6', 'La'],
+      '7M': ['7', 'Ti'],
+      '1A': ['#1', 'Di'],
+      '2m': ['b2', 'Ra'],
+      '2A': ['#2', 'Ri'],
+      '3m': ['b3', 'Me'],
+      '4A': ['#4', 'Fi'],
+      '5d': ['b5', 'Se'],
+      '5A': ['#5', 'Si'],
+      '6m': ['b6', 'Le'],
+      '6A': ['#6', 'Li'],
+      '7m': ['b7', 'Te'],
+
+      '8d': ['b1', 'De'],
+      '3A': ['#3', 'Ma'],
+      '4d': ['b4', 'Fe'],
+      '7A': ['#7', 'To']
+    }
     switch (type) {
-      case 'C': return Ok('TODO')
-      case '1': return Ok('TODO')
-      case 'Dol': return Ok('TODO')
-      case 'I': return Ok('TODO')
+      case 'C': return Ok(note.name)
+      case '1': return Ok(interval2DisplayName[interval][0])
+      case 'Do': return Ok(interval2DisplayName[interval][1])
     }
   }
 }

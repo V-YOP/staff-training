@@ -25,7 +25,7 @@ const mode2ValidTonics: Record<string, string[]> = {
 }
 
 export const NoteRecognizeSettingComponent = () => {
-  const { setting: { NoteRecognize: { startNoteInclusive, endNoteInclusive, accidentals, withOctave, choiceCount, sortAnswer, clef, dohType, tonic, mode } }, updateSetting, resetSetting } = useSetting()
+  const { setting: { NoteRecognize: { startNoteInclusive, endNoteInclusive, accidentals, withOctave, choiceCount, sortAnswer, clef, dohType, tonic, mode, answerDisplayType } }, updateSetting, resetSetting } = useSetting()
 
   const update = useCallback((setting: Partial<Setting['NoteRecognize']>) => {
     updateSetting({ NoteRecognize: setting })
@@ -181,22 +181,39 @@ export const NoteRecognizeSettingComponent = () => {
               <FormControl flexGrow={2} flexBasis='0'>
                 <FormLabel>调式</FormLabel>
                 <Select
-                    borderRadius={'3xl'}
-                    value={mode}
-                    onChange={({ target: { value } }) => update({ mode: value, tonic: 'C' })}>
-                    {Object.keys(mode2ValidTonics).map(mode => <option key={mode} label={_.startCase(mode)}>{mode}</option>)}
-                  </Select>
+                  borderRadius={'3xl'}
+                  value={mode}
+                  onChange={({ target: { value } }) => update({ mode: value, tonic: 'C' })}>
+                  {Object.keys(mode2ValidTonics).map(mode => <option key={mode} label={_.startCase(mode)}>{mode}</option>)}
+                </Select>
               </FormControl>
               <FormControl flexGrow={1} flexBasis='0'>
                 <FormLabel>主音</FormLabel>
                 <Select
-                    borderRadius={'3xl'}
-                    value={tonic}
-                    onChange={({ target: { value } }) => update({ tonic: value })}>
-                    {mode2ValidTonics[mode].map(note => <option key={note}>{note}</option>)}
-                  </Select>
+                  borderRadius={'3xl'}
+                  value={tonic}
+                  onChange={({ target: { value } }) => update({ tonic: value })}>
+                  {mode2ValidTonics[mode].map(note => <option key={note}>{note}</option>)}
+                </Select>
               </FormControl>
             </HStack>
+            <FormControl display='flex' alignItems='center'>
+              <FormLabel margin={0} flexGrow='1'>答案展示方式</FormLabel>
+              <ButtonGroup isAttached minW='10rem'>
+                <Button
+                  colorScheme={answerDisplayType === 'C' ? 'blue' : undefined}
+                  onClick={() => update({ answerDisplayType: 'C' })}
+                  flexGrow={1}>C</Button>
+                <Button
+                  colorScheme={answerDisplayType === '1' ? 'blue' : undefined}
+                  onClick={() => update({ answerDisplayType: '1' })}
+                  flexGrow={1}>1</Button>
+                <Button
+                  colorScheme={answerDisplayType === 'Do' ? 'blue' : undefined}
+                  onClick={() => update({ answerDisplayType: 'Do' })}
+                  flexGrow={1}>Do</Button>
+              </ButtonGroup>
+            </FormControl>
           </> : null
       }
 
