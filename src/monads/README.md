@@ -1,1 +1,0 @@
-file either.ts, option.ts and result.ts is copied from this repository with modification: <https://github.com/sniptt-official/monads>
